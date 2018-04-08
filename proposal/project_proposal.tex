@@ -18,13 +18,6 @@ Tsinghua University\\
 \texttt{zafaru10@mails.tsinghua.edu.cn} \\
 }
 
-% The \author macro works with any number of authors. There are two commands
-% used to separate the names and addresses of multiple authors: \And and \AND.
-%
-% Using \And between authors leaves it to \LaTeX{} to determine where to break
-% the lines. Using \AND forces a linebreak at that point. So, if \LaTeX{}
-% puts 3 of 4 authors names on the first line, and the last on the second
-% line, try using \AND instead of \And before the third author name.
 
 \newcommand{\fix}{\marginpar{FIX}}
 \newcommand{\new}{\marginpar{NEW}}
@@ -37,19 +30,182 @@ Tsinghua University\\
 \maketitle
 
 \begin{abstract}
-The abstract paragraph should be indented 1/2~inch (3~picas) on both left and
-right-hand margins. Use 10~point type, with a vertical spacing of 11~points.
-The word \textbf{Abstract} must be centered, bold, and in point size 12. Two
-line spaces precede the abstract. The abstract must be limited to one
-paragraph.
+Some sounds are distinct and instantly recognizable, like a baby's laugh or the strum of a guitar. Other sounds aren’t clear and are difficult to pinpoint. 
+If you close your eyes, could you tell the difference between the sound of a chainsaw and a blender? We also encounter in real life mix of sounds that are difficult to identify individually.
+Partly because of the vastness of sounds we experience, no reliable automatic general-purpose audio tagging systems exist. Currently, a lot of manual effort is required for tasks like annotating sound collections and providing captions for non-speech events in audiovisual content.
+
 \end{abstract}
+
+%%%% Section to remove
+\section{Help for writing this proposal : Citations, figures, tables, references}
+	\label{others}
+
+	These instructions apply to everyone, regardless of the formatter being used.
+
+	\subsection{Citations within the text}
+
+	Citations within the text should be numbered consecutively. The corresponding
+	number is to appear enclosed in square brackets, such as [1] or [2]-[5]. The
+	corresponding references are to be listed in the same order at the end of the
+	paper, in the \textbf{References} section. (Note: the standard
+	\textsc{Bib\TeX} style \texttt{unsrt} produces this.) As to the format of the
+	references themselves, any style is acceptable as long as it is used
+	consistently.
+
+	As submission is double blind, refer to your own published work in the 
+	third person. That is, use ``In the previous work of Jones et al.\ [4]'',
+	not ``In our previous work [4]''. If you cite your other papers that
+	are not widely available (e.g.\ a journal paper under review), use
+	anonymous author names in the citation, e.g.\ an author of the
+	form ``A.\ Anonymous''. 
+
+
+	\subsection{Footnotes}
+
+	Indicate footnotes with a number\footnote{Sample of the first footnote} in the
+	text. Place the footnotes at the bottom of the page on which they appear.
+	Precede the footnote with a horizontal rule of 2~inches
+	(12~picas).\footnote{Sample of the second footnote}
+
+	\subsection{Figures}
+
+	All artwork must be neat, clean, and legible. Lines should be dark
+	enough for purposes of reproduction; art work should not be
+	hand-drawn. The figure number and caption always appear after the
+	figure. Place one line space before the figure caption, and one line
+	space after the figure. The figure caption is lower case (except for
+	first word and proper nouns); figures are numbered consecutively.
+
+	Make sure the figure caption does not get separated from the figure.
+	Leave sufficient space to avoid splitting the figure and figure caption.
+
+	You may use color figures. 
+	However, it is best for the
+	figure captions and the paper body to make sense if the paper is printed
+	either in black/white or in color.
+	\begin{figure}[h]
+	\begin{center}
+	%\framebox[4.0in]{$\;$}
+	\fbox{\rule[-.5cm]{0cm}{4cm} \rule[-.5cm]{4cm}{0cm}}
+	\end{center}
+	\caption{Sample figure caption.}
+	\end{figure}
+
+	\subsection{Tables}
+
+	All tables must be centered, neat, clean and legible. Do not use hand-drawn
+	tables. The table number and title always appear before the table. See
+	Table~\ref{sample-table}.
+
+	Place one line space before the table title, one line space after the table
+	title, and one line space after the table. The table title must be lower case
+	(except for first word and proper nouns); tables are numbered consecutively.
+
+	\begin{table}[t]
+	\caption{Sample table title}
+	\label{sample-table}
+	\begin{center}
+	\begin{tabular}{ll}
+	\multicolumn{1}{c}{\bf PART}  &\multicolumn{1}{c}{\bf DESCRIPTION}
+	\\ \hline \\
+	Dendrite         &Input terminal \\
+	Axon             &Output terminal \\
+	Soma             &Cell body (contains cell nucleus) \\
+	\end{tabular}
+	\end{center}
+	\end{table}
 
 \section{Kaggle Project}
 
-Freesound General-Purpose Audio Tagging Challenge. Can you automatically recognize sounds from a wide range of real-world environments?
-\begin{center}
-   \url{https://www.kaggle.com/c/freesound-audio-tagging}
-\end{center}
+	Freesound General-Purpose Audio Tagging Challenge. Can you automatically recognize sounds from a wide range of real-world environments?
+	\begin{center}
+	   \url{https://www.kaggle.com/c/freesound-audio-tagging}
+	\end{center}
+	Deadlines:
+	\begin{itemize}
+	    \item July 24, 2018 - Entry deadline. You must accept the competition rules before this date in order to compete.
+	    \item July 24, 2018 - Team Merger deadline. This is the last day participants may join or merge teams.
+	    \item July 31, 2018 - Final submission deadline.
+	\end{itemize}
 
+\section{Why machine Learning can be helpful}
+
+\section{Related Work}
+	Citations within the text should be numbered consecutively. The corresponding
+	number is to appear enclosed in square brackets, such as [1] or [2]-[5]. The
+	corresponding references are to be listed in the same order at the end of the
+	paper, in the \textbf{References} section. (Note: the standard
+	\textsc{Bib\TeX} style \texttt{unsrt} produces this.) As to the format of the
+	references themselves, any style is acceptable as long as it is used
+	consistently.
+
+	As submission is double blind, refer to your own published work in the 
+	third person. That is, use ``In the previous work of Jones et al.\ [4]'',
+	not ``In our previous work [4]''. If you cite your other papers that
+	are not widely available (e.g.\ a journal paper under review), use
+	anonymous author names in the citation, e.g.\ an author of the
+	form ``A.\ Anonymous''. 
+
+\section{Our method}
+
+\section{Data}
+	Sounds in the dataset include things like musical instruments, human sounds, domestic sounds, and animals from Freesound’s library, annotated using a vocabulary of more than 40 labels from Google’s AudioSet ontology. To succeed in this competition your systems will need to be able to recognize an increased number of sound events of very diverse nature, and to leverage subsets of training data featuring annotations of varying reliability.\\
+	You can find all the following information on \url{https://www.kaggle.com/c/freesound-audio-tagging/data}
+	\newline
+	For this competition, the objective is to predict the audio classification label for the audio files found in the audio\_test folder.
+		\subsection{Data fields}
+			Each row of the train.csv file contains the following information:
+				\begin{itemize}
+				    \item fname: the file name
+				    \item label: the audio classification label (ground truth
+				    \item manually\_verified: Boolean (1 or 0) flag to indicate whether or not that annotation has been manually verified; see below for additional background
+				\end{itemize}
+
+		\subsection{About this dataset}
+			Freesound Dataset Kaggle 2018 (or FSDKaggle2018 for short) is an audio dataset containing 18,873 audio files annotated with labels from Google's AudioSet Ontology [1].\\
+			\newline
+			All audio samples in this dataset are gathered from Freesound [2] and are provided here as uncompressed PCM 16 bit, 44.1 kHz, mono audio files. Note that because Freesound content is collaboratively contributed, recording quality and techniques can vary widely. All sounds in Freesound are released under Creative Commons (CC) licenses. In particular, all Freesound sounds included in FSDKaggle2018 are released under either CC-BY or CC0. For attribution purposes and to facilitate attribution of these files to third parties, this dataset includes a relation of audio files and their corresponding license. The file with the relation of licenses will be published after the competition is concluded in order to ensure data anonymity during the competition.\\
+			\newline
+			The ground truth data provided in this dataset has been obtained after a data labeling process which is described in the Data labeling process section below. FSDKaggle2018 sounds are unequally distributed in the following 41 categories of the AudioSet Ontology:\\
+
+			"Acoustic\_guitar", "Applause", "Bark", "Bass\_drum", "Burping\_or\_eructation", "Bus", "Cello", "Chime", "Clarinet", "Computer\_keyboard", "Cough", "Cowbell", "Double\_bass", "Drawer\_open\_or\_close", "Electric\_piano", "Fart", "Finger\_snapping", "Fireworks", "Flute", "Glockenspiel", "Gong", "Gunshot\_or\_gunfire", "Harmonica", "Hi-hat", "Keys\_jangling", "Knock", "Laughter", "Meow", "Microwave\_oven", "Oboe", "Saxophone", "Scissors", "Shatter", "Snare\_drum", "Squeak", "Tambourine", "Tearing", "Telephone", "Trumpet", "Violin\_or\_fiddle", "Writing"\\
+			\newline
+			Here are some other relevant characteristics of FSDKaggle2018:
+			\begin{itemize}
+			    \item The dataset is split into a train set and a test set.
+			    \item The train set is meant to be for system development and includes ~9.5k samples unequally distributed among 41 categories. The minimum number of audio samples per category in the train set is 94, and the maximum 300. The duration of the audio samples ranges from 300ms to 30s due to the diversity of the sound categories and the preferences of Freesound users when recording sounds.
+			    \item Out of the ~9.5k samples from the train set, ~3.7k have manually-verified ground truth annotations and ~5.8k have non-verified annotations. The non-verified annotations of the train set have a quality estimate of at least 65-70\% in each category. Checkout the Data labeling process section below for more information about this aspect.
+			    \item Non-verified annotations in the train set are properly flagged in train.csv so that participants can opt to use this information during the development of their systems.
+			    \item The test set is composed of ~1.6k samples with manually-verified annotations and with a similar category distribution than that of the train set. The test set is complemented with ~7.8k padding sounds which are not used for scoring the systems.
+			    \item All audio samples in this dataset have a single label (i.e. are only annotated with one label). Checkout the Data labeling process section below for more information about this aspect.
+			\end{itemize}
+
+		\subsection{Data labeling process}
+
+			The data labeling process started from a manual mapping between Freesound tags and AudioSet Ontology categories (or labels), which was carried out by researchers at the Music Technology Group (Universitat Pompeu Fabra, Barcelona). Using this mapping, a number of Freesound audio samples were automatically annotated with labels from the AudioSet Ontology. These annotations can be understood as weak labels since they express the presence of a sound category in an audio sample.\\
+			\newline
+			Then, a data validation process was carried out in which a number of participants did listen to the annotated sounds and manually assessed the presence/absence of an automatically assigned sound category, according to the AudioSet category description.\\
+			\newline
+			Audio samples in FSDKaggle2018 are only annotated with a single ground truth label (see train.csv). A total of 3,710 annotations included in the train set of FSDKaggle2018 are annotations that have been manually validated as present and predominant (some with inter-annotator agreement but not all of them). This means that in most cases there is no additional acoustic material other than the labeled category. In few cases there may be some additional sound events, but these additional events won't belong to any of the 41 categories of FSDKaggle2018.\\
+			\newline
+			The rest of the annotations have not been manually validated and therefore some of them could be inaccurate. Nonetheless, we have estimated that at least 65-70\% of the non-verified annotations per category in the train set are indeed correct. It can happen that some of these non-verified audio samples present several sound sources even though only one label is provided as ground truth. This additional sources are typically out of the set of the 41 categories, but in a few cases they could be within.\\
+			\newline
+			More details about the data labeling process can be found in [3].
+
+\subsubsection*{Acknowledgments}
+
+Use unnumbered third level headings for the acknowledgments. All
+acknowledgments go at the end of the paper. Do not include 
+acknowledgments in the anonymized submission, only in the 
+final paper. 
+
+\subsubsection*{References}
+
+\small{
+[1] Jort F Gemmeke, Daniel PW Ellis, Dylan Freedman, Aren Jansen, Wade Lawrence, R Channing Moore, Manoj Plakal, and Marvin Ritter. "Audio set: An ontology and human-labeled dartaset for audio events." Proceedings of the Acoustics, Speech and Signal Pro- cessing International Conference, 2017.
+
+[2] Frederic Font, Gerard Roma, and Xavier Serra. "Freesound technical demo." Proceedings of the 21st ACM international conference on Multimedia, 2013. \url{https://freesound.org}
+
+[3]  Eduardo Fonseca, Jordi Pons, Xavier Favory, Frederic Font, Dmitry Bogdanov, Andres Ferraro, Sergio Oramas, Alastair Porter, and Xavier Serra. "Freesound Datasets: A Platform for the Creation of Open Audio Datasets." Proceedings of the International Conference on Music Information Retrieval, 2017. \url{https://repositori.upf.edu/bitstream/handle/10230/33299/fonseca_ismir17_freesound.pdf}
 
 \end{document}
