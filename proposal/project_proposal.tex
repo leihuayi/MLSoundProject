@@ -1,7 +1,9 @@
 \documentclass{article} % For LaTeX2e
 \usepackage{nips14submit_e,times}
 \usepackage{hyperref}
+\usepackage{cite}
 \usepackage{url}
+
 
 \title{Project Proposal : \\Freesound General-Purpose Audio Tagging Challenge}
 
@@ -131,20 +133,11 @@ Partly because of the vastness of sounds we experience, no reliable automatic ge
 \section{Why machine Learning can be helpful}
 
 \section{Related Work}
-	Citations within the text should be numbered consecutively. The corresponding
-	number is to appear enclosed in square brackets, such as [1] or [2]-[5]. The
-	corresponding references are to be listed in the same order at the end of the
-	paper, in the \textbf{References} section. (Note: the standard
-	\textsc{Bib\TeX} style \texttt{unsrt} produces this.) As to the format of the
-	references themselves, any style is acceptable as long as it is used
-	consistently.
+Earlier work in the domain of audio signal processing has focused on three broad categories music, speech and environmental sound tagging individually, there has almost been very little to no work in the direction of a unified general purpose sound tagger that would work across all three spectrums.
+ 
+Shufei et. al. \cite{cite1} pefromed a survey of tagging techniques used/proposed across all three spectrums in 2012. Sachin et. al. \cite{cite2} performed a survey of enviromental sound recognition techniques. Again Selina et. al. \cite{cite3} have made the selection of appropriate features for environmental sound recognition focus of their paper and furthermore presented \cite{cite4} a system for environmental sound tagging with time-frequency audio features.
 
-	As submission is double blind, refer to your own published work in the 
-	third person. That is, use ``In the previous work of Jones et al.\ [4]'',
-	not ``In our previous work [4]''. If you cite your other papers that
-	are not widely available (e.g.\ a journal paper under review), use
-	anonymous author names in the citation, e.g.\ an author of the
-	form ``A.\ Anonymous''. 
+One of the few general purpose sound taggers is proposed by Michael \cite{cite5} focused on using decorrelated spectral features coupled with hidden Markov models (HMM) for computing similarity and generating source classifications. His work has been incorporated into the MPEG-7 international standard.
 
 \section{Our method}
 
@@ -161,9 +154,9 @@ Partly because of the vastness of sounds we experience, no reliable automatic ge
 			\end{itemize}
 
 	\subsection{About this dataset}
-		Freesound Dataset Kaggle 2018 (or FSDKaggle2018 for short) is an audio dataset containing 18,873 audio files annotated with labels from Google's AudioSet Ontology [1].\\
+		Freesound Dataset Kaggle 2018 (or FSDKaggle2018 for short) is an audio dataset containing 18,873 audio files annotated with labels from Google's AudioSet Ontology \cite{cite6}.\\
 		\newline
-		All audio samples in this dataset are gathered from Freesound [2] and are provided here as uncompressed PCM 16 bit, 44.1 kHz, mono audio files. Note that because Freesound content is collaboratively contributed, recording quality and techniques can vary widely. All sounds in Freesound are released under Creative Commons (CC) licenses. In particular, all Freesound sounds included in FSDKaggle2018 are released under either CC-BY or CC0. For attribution purposes and to facilitate attribution of these files to third parties, this dataset includes a relation of audio files and their corresponding license. The file with the relation of licenses will be published after the competition is concluded in order to ensure data anonymity during the competition.\\
+		All audio samples in this dataset are gathered from Freesound \cite{cite7} and are provided here as uncompressed PCM 16 bit, 44.1 kHz, mono audio files. Note that because Freesound content is collaboratively contributed, recording quality and techniques can vary widely. All sounds in Freesound are released under Creative Commons (CC) licenses. In particular, all Freesound sounds included in FSDKaggle2018 are released under either CC-BY or CC0. For attribution purposes and to facilitate attribution of these files to third parties, this dataset includes a relation of audio files and their corresponding license. The file with the relation of licenses will be published after the competition is concluded in order to ensure data anonymity during the competition.\\
 		\newline
 		The ground truth data provided in this dataset has been obtained after a data labeling process which is described in the Data labeling process section below. FSDKaggle2018 sounds are unequally distributed in the following 41 categories of the AudioSet Ontology:\\
 
@@ -189,7 +182,7 @@ Partly because of the vastness of sounds we experience, no reliable automatic ge
 		\newline
 		The rest of the annotations have not been manually validated and therefore some of them could be inaccurate. Nonetheless, we have estimated that at least 65-70\% of the non-verified annotations per category in the train set are indeed correct. It can happen that some of these non-verified audio samples present several sound sources even though only one label is provided as ground truth. This additional sources are typically out of the set of the 41 categories, but in a few cases they could be within.\\
 		\newline
-		More details about the data labeling process can be found in [3].
+		More details about the data labeling process can be found in \cite{cite8}.
 
 \subsubsection*{Acknowledgments}
 
@@ -198,13 +191,7 @@ acknowledgments go at the end of the paper. Do not include
 acknowledgments in the anonymized submission, only in the 
 final paper. 
 
-\subsubsection*{References}
-
-\small{
-[1] Jort F Gemmeke, Daniel PW Ellis, Dylan Freedman, Aren Jansen, Wade Lawrence, R Channing Moore, Manoj Plakal, and Marvin Ritter. "Audio set: An ontology and human-labeled dartaset for audio events." Proceedings of the Acoustics, Speech and Signal Pro- cessing International Conference, 2017.
-
-[2] Frederic Font, Gerard Roma, and Xavier Serra. "Freesound technical demo." Proceedings of the 21st ACM international conference on Multimedia, 2013. \url{https://freesound.org}
-
-[3]  Eduardo Fonseca, Jordi Pons, Xavier Favory, Frederic Font, Dmitry Bogdanov, Andres Ferraro, Sergio Oramas, Alastair Porter, and Xavier Serra. "Freesound Datasets: A Platform for the Creation of Open Audio Datasets." Proceedings of the International Conference on Music Information Retrieval, 2017. \url{https://repositori.upf.edu/bitstream/handle/10230/33299/fonseca_ismir17_freesound.pdf}
-
+\nocite{*}
+\bibliographystyle{IEEEannot}
+\bibliography{project_proposal}
 \end{document}
