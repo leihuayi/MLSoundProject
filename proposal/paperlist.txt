@@ -1,3 +1,18 @@
 List of papers to read
 -------------------------------
 
+1- A survey of tagging techniques for music, speech and environmental sound (https://link.springer.com/article/10.1007/s10462-012-9362-y)
+2- Comparison of techniques for environmental sound recognition (https://www.sciencedirect.com/science/article/pii/S0167865503001478)
+3- General sound classification and similarity in MPEG-7 (https://www.cambridge.org/core/journals/organised-sound/article/general-sound-classification-and-similarity-in-mpeg7/CA36219C978B29099D73054F30C85EA7)
+4- Environmental Sound Recognition: A Statistical Approach (http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.49.6450&rep=rep1&type=pdf)
+5- Environmental sound recognition: a survey (https://www.cambridge.org/core/journals/apsipa-transactions-on-signal-and-information-processing/article/environmental-sound-recognition-a-survey/96211C365DC7B250CEEFFB15026A5CDF)
+6- Environmental sound recognition by multilayered neural networks (http://ieeexplore.ieee.org/abstract/document/1357184/)
+7- Robust sound event recognition using convolutional neural networks (http://ieeexplore.ieee.org/abstract/document/7178031/)
+8- Automatic sound detection and recognition for noisy environment (http://ieeexplore.ieee.org/abstract/document/7075558/)
+9- Environmental sound recognition using MP-based features(http://ieeexplore.ieee.org/abstract/document/4517531/)
+10- System and method for sound recognition (https://patents.google.com/patent/US7820900B2/en)
+11- LESS GENERAL Application of Temporal Descriptors to Musical Instrument Sound Recognition (https://link.springer.com/article/10.1023/A:1023505917953)
+12- LESS GENERAL Systems and methods for sound recognition  (https://patents.google.com/patent/US9280598B2/en)
+13- LESS RELEVANT Environmental Sound Recognition With Time–Frequency Audio Features (http://ieeexplore.ieee.org/abstract/document/5109766/?reload=true)
+14- LESS RELEVANT How Efficient is MPEG-7 for General Sound Recognition? (http://www.aes.org/e-lib/browse.cfm?elib=12814)
+

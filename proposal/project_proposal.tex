@@ -151,46 +151,45 @@ Partly because of the vastness of sounds we experience, no reliable automatic ge
 \section{Data}
 	Sounds in the dataset include things like musical instruments, human sounds, domestic sounds, and animals from Freesound’s library, annotated using a vocabulary of more than 40 labels from Google’s AudioSet ontology. To succeed in this competition your systems will need to be able to recognize an increased number of sound events of very diverse nature, and to leverage subsets of training data featuring annotations of varying reliability.\\
 	You can find all the following information on \url{https://www.kaggle.com/c/freesound-audio-tagging/data}
-	\newline
-	For this competition, the objective is to predict the audio classification label for the audio files found in the audio\_test folder.
-		\subsection{Data fields}
-			Each row of the train.csv file contains the following information:
-				\begin{itemize}
-				    \item fname: the file name
-				    \item label: the audio classification label (ground truth
-				    \item manually\_verified: Boolean (1 or 0) flag to indicate whether or not that annotation has been manually verified; see below for additional background
-				\end{itemize}
-
-		\subsection{About this dataset}
-			Freesound Dataset Kaggle 2018 (or FSDKaggle2018 for short) is an audio dataset containing 18,873 audio files annotated with labels from Google's AudioSet Ontology [1].\\
-			\newline
-			All audio samples in this dataset are gathered from Freesound [2] and are provided here as uncompressed PCM 16 bit, 44.1 kHz, mono audio files. Note that because Freesound content is collaboratively contributed, recording quality and techniques can vary widely. All sounds in Freesound are released under Creative Commons (CC) licenses. In particular, all Freesound sounds included in FSDKaggle2018 are released under either CC-BY or CC0. For attribution purposes and to facilitate attribution of these files to third parties, this dataset includes a relation of audio files and their corresponding license. The file with the relation of licenses will be published after the competition is concluded in order to ensure data anonymity during the competition.\\
-			\newline
-			The ground truth data provided in this dataset has been obtained after a data labeling process which is described in the Data labeling process section below. FSDKaggle2018 sounds are unequally distributed in the following 41 categories of the AudioSet Ontology:\\
-
-			"Acoustic\_guitar", "Applause", "Bark", "Bass\_drum", "Burping\_or\_eructation", "Bus", "Cello", "Chime", "Clarinet", "Computer\_keyboard", "Cough", "Cowbell", "Double\_bass", "Drawer\_open\_or\_close", "Electric\_piano", "Fart", "Finger\_snapping", "Fireworks", "Flute", "Glockenspiel", "Gong", "Gunshot\_or\_gunfire", "Harmonica", "Hi-hat", "Keys\_jangling", "Knock", "Laughter", "Meow", "Microwave\_oven", "Oboe", "Saxophone", "Scissors", "Shatter", "Snare\_drum", "Squeak", "Tambourine", "Tearing", "Telephone", "Trumpet", "Violin\_or\_fiddle", "Writing"\\
-			\newline
-			Here are some other relevant characteristics of FSDKaggle2018:
+	
+	\subsection{Data fields}
+		Each row of the train.csv file contains the following information:
 			\begin{itemize}
-			    \item The dataset is split into a train set and a test set.
-			    \item The train set is meant to be for system development and includes ~9.5k samples unequally distributed among 41 categories. The minimum number of audio samples per category in the train set is 94, and the maximum 300. The duration of the audio samples ranges from 300ms to 30s due to the diversity of the sound categories and the preferences of Freesound users when recording sounds.
-			    \item Out of the ~9.5k samples from the train set, ~3.7k have manually-verified ground truth annotations and ~5.8k have non-verified annotations. The non-verified annotations of the train set have a quality estimate of at least 65-70\% in each category. Checkout the Data labeling process section below for more information about this aspect.
-			    \item Non-verified annotations in the train set are properly flagged in train.csv so that participants can opt to use this information during the development of their systems.
-			    \item The test set is composed of ~1.6k samples with manually-verified annotations and with a similar category distribution than that of the train set. The test set is complemented with ~7.8k padding sounds which are not used for scoring the systems.
-			    \item All audio samples in this dataset have a single label (i.e. are only annotated with one label). Checkout the Data labeling process section below for more information about this aspect.
+			    \item fname: the file name
+			    \item label: the audio classification label (ground truth
+			    \item manually\_verified: Boolean (1 or 0) flag to indicate whether or not that annotation has been manually verified; see below for additional background
 			\end{itemize}
 
-		\subsection{Data labeling process}
+	\subsection{About this dataset}
+		Freesound Dataset Kaggle 2018 (or FSDKaggle2018 for short) is an audio dataset containing 18,873 audio files annotated with labels from Google's AudioSet Ontology [1].\\
+		\newline
+		All audio samples in this dataset are gathered from Freesound [2] and are provided here as uncompressed PCM 16 bit, 44.1 kHz, mono audio files. Note that because Freesound content is collaboratively contributed, recording quality and techniques can vary widely. All sounds in Freesound are released under Creative Commons (CC) licenses. In particular, all Freesound sounds included in FSDKaggle2018 are released under either CC-BY or CC0. For attribution purposes and to facilitate attribution of these files to third parties, this dataset includes a relation of audio files and their corresponding license. The file with the relation of licenses will be published after the competition is concluded in order to ensure data anonymity during the competition.\\
+		\newline
+		The ground truth data provided in this dataset has been obtained after a data labeling process which is described in the Data labeling process section below. FSDKaggle2018 sounds are unequally distributed in the following 41 categories of the AudioSet Ontology:\\
 
-			The data labeling process started from a manual mapping between Freesound tags and AudioSet Ontology categories (or labels), which was carried out by researchers at the Music Technology Group (Universitat Pompeu Fabra, Barcelona). Using this mapping, a number of Freesound audio samples were automatically annotated with labels from the AudioSet Ontology. These annotations can be understood as weak labels since they express the presence of a sound category in an audio sample.\\
-			\newline
-			Then, a data validation process was carried out in which a number of participants did listen to the annotated sounds and manually assessed the presence/absence of an automatically assigned sound category, according to the AudioSet category description.\\
-			\newline
-			Audio samples in FSDKaggle2018 are only annotated with a single ground truth label (see train.csv). A total of 3,710 annotations included in the train set of FSDKaggle2018 are annotations that have been manually validated as present and predominant (some with inter-annotator agreement but not all of them). This means that in most cases there is no additional acoustic material other than the labeled category. In few cases there may be some additional sound events, but these additional events won't belong to any of the 41 categories of FSDKaggle2018.\\
-			\newline
-			The rest of the annotations have not been manually validated and therefore some of them could be inaccurate. Nonetheless, we have estimated that at least 65-70\% of the non-verified annotations per category in the train set are indeed correct. It can happen that some of these non-verified audio samples present several sound sources even though only one label is provided as ground truth. This additional sources are typically out of the set of the 41 categories, but in a few cases they could be within.\\
-			\newline
-			More details about the data labeling process can be found in [3].
+		"Acoustic\_guitar", "Applause", "Bark", "Bass\_drum", "Burping\_or\_eructation", "Bus", "Cello", "Chime", "Clarinet", "Computer\_keyboard", "Cough", "Cowbell", "Double\_bass", "Drawer\_open\_or\_close", "Electric\_piano", "Fart", "Finger\_snapping", "Fireworks", "Flute", "Glockenspiel", "Gong", "Gunshot\_or\_gunfire", "Harmonica", "Hi-hat", "Keys\_jangling", "Knock", "Laughter", "Meow", "Microwave\_oven", "Oboe", "Saxophone", "Scissors", "Shatter", "Snare\_drum", "Squeak", "Tambourine", "Tearing", "Telephone", "Trumpet", "Violin\_or\_fiddle", "Writing"\\
+		\newline
+		Here are some other relevant characteristics of FSDKaggle2018:
+		\begin{itemize}
+		    \item The dataset is split into a train set and a test set.
+		    \item The train set is meant to be for system development and includes ~9.5k samples unequally distributed among 41 categories. The minimum number of audio samples per category in the train set is 94, and the maximum 300. The duration of the audio samples ranges from 300ms to 30s due to the diversity of the sound categories and the preferences of Freesound users when recording sounds.
+		    \item Out of the ~9.5k samples from the train set, ~3.7k have manually-verified ground truth annotations and ~5.8k have non-verified annotations. The non-verified annotations of the train set have a quality estimate of at least 65-70\% in each category. Checkout the Data labeling process section below for more information about this aspect.
+		    \item Non-verified annotations in the train set are properly flagged in train.csv so that participants can opt to use this information during the development of their systems.
+		    \item The test set is composed of ~1.6k samples with manually-verified annotations and with a similar category distribution than that of the train set. The test set is complemented with ~7.8k padding sounds which are not used for scoring the systems.
+		    \item All audio samples in this dataset have a single label (i.e. are only annotated with one label). Checkout the Data labeling process section below for more information about this aspect.
+		\end{itemize}
+
+	\subsection{Data labeling process}
+
+		The data labeling process started from a manual mapping between Freesound tags and AudioSet Ontology categories (or labels), which was carried out by researchers at the Music Technology Group (Universitat Pompeu Fabra, Barcelona). Using this mapping, a number of Freesound audio samples were automatically annotated with labels from the AudioSet Ontology. These annotations can be understood as weak labels since they express the presence of a sound category in an audio sample.\\
+		\newline
+		Then, a data validation process was carried out in which a number of participants did listen to the annotated sounds and manually assessed the presence/absence of an automatically assigned sound category, according to the AudioSet category description.\\
+		\newline
+		Audio samples in FSDKaggle2018 are only annotated with a single ground truth label (see train.csv). A total of 3,710 annotations included in the train set of FSDKaggle2018 are annotations that have been manually validated as present and predominant (some with inter-annotator agreement but not all of them). This means that in most cases there is no additional acoustic material other than the labeled category. In few cases there may be some additional sound events, but these additional events won't belong to any of the 41 categories of FSDKaggle2018.\\
+		\newline
+		The rest of the annotations have not been manually validated and therefore some of them could be inaccurate. Nonetheless, we have estimated that at least 65-70\% of the non-verified annotations per category in the train set are indeed correct. It can happen that some of these non-verified audio samples present several sound sources even though only one label is provided as ground truth. This additional sources are typically out of the set of the 41 categories, but in a few cases they could be within.\\
+		\newline
+		More details about the data labeling process can be found in [3].
 
 \subsubsection*{Acknowledgments}
 
