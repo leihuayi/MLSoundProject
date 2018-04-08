@@ -83,20 +83,11 @@
 \def\@maketitle{\vbox{\hsize\textwidth
 \linewidth\hsize \vskip 0.1in \toptitlebar \centering
 {\LARGE\bf \@title\par}  \bottomtitlebar % \vskip 0.1in %  minus
-\ifnipsfinal
    \def\And{\end{tabular}\hfil\linebreak[0]\hfil
             \begin{tabular}[t]{c}\bf\rule{\z@}{24pt}\ignorespaces}% 
   \def\AND{\end{tabular}\hfil\linebreak[4]\hfil
             \begin{tabular}[t]{c}\bf\rule{\z@}{24pt}\ignorespaces}% 
     \begin{tabular}[t]{c}\bf\rule{\z@}{24pt}\@author\end{tabular}% 
-\else 
-     \begin{tabular}[t]{c}\bf\rule{\z@}{24pt}
-Anonymous Author(s) \\
-Affiliation \\
-Address \\
-\texttt{email} \\
-\end{tabular}% 
-\fi
 \vskip 0.3in minus 0.1in}}
 
 \renewenvironment{abstract}{\vskip.075in\centerline{\large\bf
