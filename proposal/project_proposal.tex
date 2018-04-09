@@ -32,90 +32,14 @@ Tsinghua University\\
 \maketitle
 
 \begin{abstract}
-	Some sounds are distinct and instantly recognizable, like a baby's laugh or the strum of a guitar. Other sounds aren't clear and are difficult to pinpoint. 
-	If you close your eyes, could you tell the difference between the sound of a chainsaw and a blender? We also encounter in real life mix of sounds that are difficult to identify individually.\\
-	Partly because of the vastness of sounds we experience, no reliable automatic general-purpose audio tagging systems exist. Currently, a lot of manual effort is required for tasks like annotating sound collections and providing captions for non-speech events in audiovisual content.\\
-	This project's goal is to be able to recognize an increased number of sound events of very diverse nature, and to leverage subsets of training data featuring annotations of varying reliability.
+	Sound tagging has been studied for at least a couple of decades now. Among the different types of sounds the most prevalent research areas have been music, speech and enviromental sounds. Some sounds are distinct and instantly recognizable, like a baby's laugh or the strum of a guitar. Other sounds aren't clear and are difficult to pinpoint.\\
+	\newline
+    If you close your eyes, could you tell the difference between the sound of a chainsaw and a blender? We also encounter in real life mix of sounds that are difficult to identify individually.\\
+	\newline
+    Partly because of the vastness of sounds we experience, no reliable automatic general-purpose audio tagging systems exist. Currently, a lot of manual effort is required for tasks like annotating sound collections and providing captions for non-speech events in audiovisual content.\\
+	\newline
+    This project's goal is to be able to recognize an increased number of sound events of very diverse nature, and to leverage subsets of training data featuring annotations of varying reliability.
 \end{abstract}
-
-%%%% Section to remove
-\section{Help for writing this proposal : Citations, figures, tables, references}
-	\label{others}
-
-	These instructions apply to everyone, regardless of the formatter being used.
-
-	\subsection{Citations within the text}
-
-	Citations within the text should be numbered consecutively. The corresponding
-	number is to appear enclosed in square brackets, such as [1] or [2]-[5]. The
-	corresponding references are to be listed in the same order at the end of the
-	paper, in the \textbf{References} section. (Note: the standard
-	\textsc{Bib\TeX} style \texttt{unsrt} produces this.) As to the format of the
-	references themselves, any style is acceptable as long as it is used
-	consistently.
-
-	As submission is double blind, refer to your own published work in the 
-	third person. That is, use ``In the previous work of Jones et al.\ [4]'',
-	not ``In our previous work [4]''. If you cite your other papers that
-	are not widely available (e.g.\ a journal paper under review), use
-	anonymous author names in the citation, e.g.\ an author of the
-	form ``A.\ Anonymous''. 
-
-
-	\subsection{Footnotes}
-
-	Indicate footnotes with a number\footnote{Sample of the first footnote} in the
-	text. Place the footnotes at the bottom of the page on which they appear.
-	Precede the footnote with a horizontal rule of 2~inches
-	(12~picas).\footnote{Sample of the second footnote}
-
-	\subsection{Figures}
-
-	All artwork must be neat, clean, and legible. Lines should be dark
-	enough for purposes of reproduction; art work should not be
-	hand-drawn. The figure number and caption always appear after the
-	figure. Place one line space before the figure caption, and one line
-	space after the figure. The figure caption is lower case (except for
-	first word and proper nouns); figures are numbered consecutively.
-
-	Make sure the figure caption does not get separated from the figure.
-	Leave sufficient space to avoid splitting the figure and figure caption.
-
-	You may use color figures. 
-	However, it is best for the
-	figure captions and the paper body to make sense if the paper is printed
-	either in black/white or in color.
-	\begin{figure}[h]
-	\begin{center}
-	%\framebox[4.0in]{$\;$}
-	\fbox{\rule[-.5cm]{0cm}{4cm} \rule[-.5cm]{4cm}{0cm}}
-	\end{center}
-	\caption{Sample figure caption.}
-	\end{figure}
-
-	\subsection{Tables}
-
-	All tables must be centered, neat, clean and legible. Do not use hand-drawn
-	tables. The table number and title always appear before the table. See
-	Table~\ref{sample-table}.
-
-	Place one line space before the table title, one line space after the table
-	title, and one line space after the table. The table title must be lower case
-	(except for first word and proper nouns); tables are numbered consecutively.
-
-	\begin{table}[t]
-	\caption{Sample table title}
-	\label{sample-table}
-	\begin{center}
-	\begin{tabular}{ll}
-	\multicolumn{1}{c}{\bf PART}  &\multicolumn{1}{c}{\bf DESCRIPTION}
-	\\ \hline \\
-	Dendrite         &Input terminal \\
-	Axon             &Output terminal \\
-	Soma             &Cell body (contains cell nucleus) \\
-	\end{tabular}
-	\end{center}
-	\end{table}
 
 \section{Kaggle Project}
 
@@ -130,21 +54,31 @@ Tsinghua University\\
 	    \item July 31, 2018 - Final submission deadline.
 	\end{itemize}
 
-\section{Why machine Learning can be helpful}
+\section{Why Machine Learning can be helpful?}
+    Our life is surrounded by various sounds: speech, music, animal call, aircraft, traffic, even the sound of typing words, clicking the mouse, etc. Sounds can be roughly grouped into three clusters: human voice, artificial sound, and non-artificial/natural sound.\\
+    \newline
+    Human voice refers to sounds created by people physically such as speech, cough, and singing. Artificial sounds refer to sounds created by human activities such as traffic, aircraft, and music. Non- artificial sounds include sounds created by nature such as wind, rain, land animal, insects and marine life.\\
+    \newline
+    These sounds make the world exclamatory and colourful. All these sounds carry information and have their own characteristics. In order to categorise different kinds of sounds and study them separately, tagging is introduced into the area of sound analysis. The act of tagging, in this context refers to the action of adding text based on metadata and annotations to specific non-textual information and data.\\
+    \newline
+    Initially, people classified and documented all information manually. If you close your eyes, could you tell the difference between the sound of a chainsaw and a blender? Probably not. With the development of machine technology, especially the computer science, people started to study new ways of automatic tagging, not only due to its accuracy but also due to its performance. A lot of classification work has been solved efficiently for music, speech and environmental sounds.\\
+    \newline
+    However, despite the good performance, these automatic tagging machines still need information from the metadata of targets. The metadata is collected manually in several ways. Besides one model suited for tagging one classification of sounds might not be suited for the other classes. And often times than not it is the case that sounds are not distinguished into their respective classes. This is where machine learning comes into play, in cases such as these, there is a need for general purpose tagging systems.
+    
 
 \section{Related Work}
-Earlier work in the domain of audio signal processing has focused on three broad categories music, speech and environmental sound tagging individually, there has almost been very little to no work in the direction of a unified general purpose sound tagger that would work across these spectrums.
-The main difficulty, is our case, is dealing with sounds with very large bandwith, no structure --- in opposite to human speech ---, bearing possible noise. These differences make the usual sound classification techniques, such as Hidden Markov Models (HMM) or Gaussian Mixture Models (GMM), be much less accurate with this kind of data.
+    Earlier work in the domain of audio signal processing has focused on three broad categories music, speech and environmental sound tagging individually, there has almost been very little to no work in the direction of a unified general purpose sound tagger that would work across these spectrums.
+    The main difficulty, is our case, is dealing with sounds with very large bandwith, no structure --- in opposite to human speech ---, bearing possible noise. These differences make the usual sound classification techniques, such as Hidden Markov Models (HMM) or Gaussian Mixture Models (GMM), be much less accurate with this kind of data.
 
-While Cowling et. al. \cite{cite1} and Zhang et. al. \cite{cite2} reject alltogether the idea of using HMM and concentrale on less conventional classification algorithms, Dufaux et. al. \cite{cite3} present good results robust to the presence of noise with both HNN and GNN, with around 98\% success with little noise and 57\% in average for maximum noise. However, they needed to aggregate models for each noise level in order to acheive an algorithm working in any noise environement, making the computation time much longer. On the other hand, Michael \cite{cite4} focused on using decorrelated spectral features coupled with hidden Markov models (HMM) for computing similarity and generating source classifications. His work has been incorporated into the MPEG-7 international standard. 
+    While Cowling et. al. \cite{cite1} and Zhang et. al. \cite{cite2} reject alltogether the idea of using HMM and concentrale on less conventional classification algorithms, Dufaux et. al. \cite{cite3} present good results robust to the presence of noise with both HNN and GNN, with around 98\% success with little noise and 57\% in average for maximum noise. However, they needed to aggregate models for each noise level in order to acheive an algorithm working in any noise environement, making the computation time much longer. On the other hand, Michael \cite{cite4} focused on using decorrelated spectral features coupled with hidden Markov models (HMM) for computing similarity and generating source classifications. His work has been incorporated into the MPEG-7 international standard. 
 
-As for GMM, Cowling et. al. \cite{cite1} show the huge gap between the performance for music instruments and general non-speech noice, with 90\% for the first, but at most 46\% for the latter.
- 
-Shufei et. al. \cite{cite5} perfomed a survey of tagging techniques used/proposed across all three spectrums in 2012. Sachin et. al. \cite{cite6} performed a survey of enviromental sound recognition techniques. Again Selina et. al. \cite{cite7} have made the selection of appropriate features for environmental sound recognition focus of their paper and furthermore presented \cite{cite8} a system for environmental sound tagging with time-frequency audio features.
+    As for GMM, Cowling et. al. \cite{cite1} show the huge gap between the performance for music instruments and general non-speech noice, with 90\% for the first, but at most 46\% for the latter.
+    
+    Shufei et. al. \cite{cite5} perfomed a survey of tagging techniques used/proposed across all three spectrums in 2012. Sachin et. al. \cite{cite6} performed a survey of enviromental sound recognition techniques. Again Selina et. al. \cite{cite7} have made the selection of appropriate features for environmental sound recognition focus of their paper and furthermore presented \cite{cite8} a system for environmental sound tagging with time-frequency audio features.
 
-Since environmental sound is unstructured and has a kind of random composition, Zhang et. al. \cite{cite2} propose to take inspiration from other well-known unstructured data --- images --- to build efficient classification. Wtih Convolutional Neural Nets (CNN), they get highly reliable results with 93\% mean accuracy, its strong point being correct despite the noise in the audio samples.
+    Since environmental sound is unstructured and has a kind of random composition, Zhang et. al. \cite{cite2} propose to take inspiration from other well-known unstructured data --- images --- to build efficient classification. Wtih Convolutional Neural Nets (CNN), they get highly reliable results with 93\% mean accuracy, its strong point being correct despite the noise in the audio samples.
 
-Another important point to consider in our research is first extracting the some typical features in the signal before performing any classification. This process is quickly evoked by Dufaux et. al. \cite{cite3}, and more detailled by Cowling et. al. \cite{cite1}. They split the feature extraction techniques in two categories : stationary, meaning only based on frequence, and non-stationary, meaning based on both time and frequence. They present the effectiveness of 7 extraction techniques (4 stationary, 3 non-stationary) coupled with 5 different classification techniques : Learning vector quantization, Artificial neural networks, Dynamic time warping, Long-term statistics, Gaussian mixture models. They show that the final performances of classification vary with the extraction technique. Therefore we must consider carefully how we will extract the features in our algorithm.
+    Another important point to consider in our research is first extracting the some typical features in the signal before performing any classification. This process is quickly evoked by Dufaux et. al. \cite{cite3}, and more detailled by Cowling et. al. \cite{cite1}. They split the feature extraction techniques in two categories : stationary, meaning only based on frequence, and non-stationary, meaning based on both time and frequence. They present the effectiveness of 7 extraction techniques (4 stationary, 3 non-stationary) coupled with 5 different classification techniques : Learning vector quantization, Artificial neural networks, Dynamic time warping, Long-term statistics, Gaussian mixture models. They show that the final performances of classification vary with the extraction technique. Therefore we must consider carefully how we will extract the features in our algorithm.
 
 \section{Our method}
 
@@ -190,12 +124,6 @@ Another important point to consider in our research is first extracting the some
 		\newline
 		More details about the data labeling process can be found in \cite{cite11}.
 
-\subsubsection*{Acknowledgments}
-
-Use unnumbered third level headings for the acknowledgments. All
-acknowledgments go at the end of the paper. Do not include 
-acknowledgments in the anonymized submission, only in the 
-final paper. 
 
 \nocite{*}
 \bibliographystyle{unsrt}
