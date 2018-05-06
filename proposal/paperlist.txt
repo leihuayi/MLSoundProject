@@ -16,3 +16,9 @@ List of papers to read
 13- LESS RELEVANT Environmental Sound Recognition With Time–Frequency Audio Features (http://ieeexplore.ieee.org/abstract/document/5109766/?reload=true)
 14- LESS RELEVANT How Efficient is MPEG-7 for General Sound Recognition? (http://www.aes.org/e-lib/browse.cfm?elib=12814)
 
+15- ENVIRONMENTAL SOUND CLASSIFICATIONWITH CONVOLUTIONAL NEURAL NETWORKS, 2015 (https://pdfs.semanticscholar.org/447a/7d1ed350f9dc65bd2fe67179598a1f1e5bba.pdf)
+
+USEFUL WEBSITES
+------------------------------------
+https://medium.com/iotforall/sound-classification-with-tensorflow-8209bdb03dfb
+https://github.com/aqibsaeed/Urban-Sound-Classification
