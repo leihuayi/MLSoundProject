@@ -3,37 +3,33 @@
 #   I M P O R T     L I B R A R I E S                                                           #
 #                                                                                               #
 #-----------------------------------------------------------------------------------------------#
-import os
-import librosa
-import numpy as np
-import utils
-import features
 
 
-# Define global parameters to be used through out the program
-TRAIN_CSV = "../data/train.csv"
-TRAIN_AUDIO_PATH = "../data/audio_train/"
-#TEST_CSV = "../data/train.csv"
-#TEST_AUDIO_PATH = "../data/audio_train"
 
 #***********************************************************************************************#
 #                                                                                               #
 #   Module:                                                                                     #
-#   main()                                                                                      #
+#   create_distionary()                                                                         #
 #                                                                                               #
 #   Description:                                                                                #
-#   Main program responsible for bringing everything together.                                  #
+#   Creates a dictionary of labels from a .csv file to be used for training.                    #
 #                                                                                               #
 #***********************************************************************************************#
-def main():
-    # create a dictionary from the provided train.csv file
-    dictionary = utils.create_dictionary(TRAIN_CSV,1)
+def create_dictionary(file_name, column):
+    # create an empty dictionary
+    dictionary = {}
     
-    # call the feature extraction module to get audio features
-    f, labels, verified =  features.parse_audio_files_train(TRAIN_AUDIO_PATH,TRAIN_CSV,dictionary)
+    # open file from the filename provided
+    _file = open(file_name, "r")
+    label = 0
     
-    # use the above extracted features for the training of the model
+    # check fro unique labels and generate a dictionary.
+    for line in _file:
+        split_data = line.split(",")
+        if not (split_data[column] in dictionary):
+            dictionary[split_data[column]] = label;
+            label += 1
     
+    # return the created dictionary to the calling program
+    return dictionary
 
-# call the main program.
-main()

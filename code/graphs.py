@@ -1,11 +1,16 @@
+#-----------------------------------------------------------------------------------------------#
+#                                                                                               #
+#   I M P O R T     L I B R A R I E S                                                           #
+#                                                                                               #
+#-----------------------------------------------------------------------------------------------#
 import glob
 import os
-
 import librosa
 import librosa.display
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import specgram
+
 
 def load_sound_files(file_paths):
     raw_sounds = []
@@ -49,7 +54,7 @@ def plot_log_power_specgram(sound_names,raw_sounds):
     plt.show()
 
 def main():
-    sound_file_paths = ["./data/audio_train/"+f for f in os.listdir(os.path.join(os.path.dirname(__file__), "../data/audio_train"))]
+    sound_file_paths = ["../data/audio_train/"+f for f in os.listdir(os.path.join(os.path.dirname(__file__), "../data/audio_train"))]
 
     sound_names = []
 
