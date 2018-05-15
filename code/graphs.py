@@ -164,6 +164,8 @@ def main():
     #plot_specgram(sound_names,raw_sounds)
     #plot_log_power_specgram(sound_names,raw_sounds)
     #plot_mfcc(sound_names, sound_file_paths)
-    plot_categories()
+    #plot_categories()
+
+    
 
 main()
