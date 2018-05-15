@@ -6,7 +6,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
-from sklearn.metrics import precision_recall_fscore_support
 
 #***********************************************************************************************#
 #                                                                                               #
@@ -18,10 +17,9 @@ from sklearn.metrics import precision_recall_fscore_support
 #   features and selected options.                                                              #
 #                                                                                               #
 #***********************************************************************************************#
-def multilayer_neural_network(tr_features, tr_labels, ts_features, ts_name_list, dictionary, training_epochs = 50):
+def multilayer_neural_network(tr_features, tr_labels, ts_features, n_classes, training_epochs = 50):
     # initialize the beginning paramters.
     n_dim = tr_features.shape[1]
-    n_classes = len(dictionary)
     n_hidden_units_one = 280 
     n_hidden_units_two = 300
     sd = 1 / np.sqrt(n_dim)
@@ -63,5 +61,5 @@ def multilayer_neural_network(tr_features, tr_labels, ts_features, ts_name_list,
     plt.axis([0,training_epochs,0,np.max(cost_history)])
     plt.show()
     
-    # Use the y_pred list to generate the prediction csv file
-    
+    # return the predicted values back to the calling program
+    return y_pred

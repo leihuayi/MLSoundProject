@@ -36,7 +36,10 @@ def main():
     tr_labels = features.one_hot_encode(tr_labels)
     
     # use the above extracted features for the training of the model
-    train.multilayer_neural_network(tr_features, tr_labels, ts_features, ts_name_list, dictionary)
+    predict_multilayer_nn = train.multilayer_neural_network(tr_features, tr_labels, ts_features, n_classes=len(dictionary))
+    
+    # print the predicted results to a csv file.
+    utils.print_csv_file(predict_multilayer_nn, ts_name_list, dictionary, OUTPUT_CSV)
 
 # call the main program.
 main()
