@@ -4,6 +4,7 @@
 #                                                                                               #
 #-----------------------------------------------------------------------------------------------#
 import os
+import glob
 import librosa
 import numpy as np
 import pandas as pd
@@ -37,18 +38,18 @@ def extract_feature(file_name):
 #   Parses audio data that needs to be predicted upon.                                          #
 #                                                                                               #
 #***********************************************************************************************#
-def parse_audio_files_predict(audio_path, test_csv_path, file_ext="*.wav"):
+def parse_audio_files_predict(audio_path, file_ext="*.wav"):
     # initialize variables
     features = np.empty((0,193))
+    name_list = []
     # read audio files and extract features
-    data = pd.read_csv(os.path.join(os.path.dirname(__file__), test_csv_path))
-    for fname in data["fname"]:
-        fn = audio_path+fname
-        mfccs, chroma, mel, contrast,tonnetz = extract_feature(fn)
+    for fname in glob.glob(os.path.join(audio_path, file_ext)):
+        mfccs, chroma, mel, contrast,tonnetz = extract_feature(fname)
         ext_features = np.hstack([mfccs,chroma,mel,contrast,tonnetz])
-        features = np.vstack([features,ext_features])  
+        features = np.vstack([features,ext_features])
+        name_list.append(fname.split("/")[-1])
     # return the extracted features to the calling program
-    return np.array(features)
+    return np.array(features), name_list
 
 #***********************************************************************************************#
 #                                                                                               #

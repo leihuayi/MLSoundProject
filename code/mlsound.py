@@ -10,8 +10,7 @@ import train
 # Define global parameters to be used through out the program
 TRAIN_CSV = "../data/train.csv"
 TRAIN_AUDIO_PATH = "../data/audio_train/"
-TEST_CSV = "../data/verifying.csv"
-TEST_AUDIO_PATH = "../data/audio_verifying"
+TEST_AUDIO_PATH = "../data/audio_test"
 
 #***********************************************************************************************#
 #                                                                                               #
@@ -28,16 +27,13 @@ def main():
     
     # call the feature extraction module to get audio features
     tr_features, tr_labels, tr_verified =  features.parse_audio_files_train(TRAIN_AUDIO_PATH,TRAIN_CSV,dictionary)
-
-    #dictionary = utils.create_dictionary(TEST_CSV)
-    ts_features, ts_labels, ts_verified = features.parse_audio_files_train(TRAIN_AUDIO_PATH,TRAIN_CSV,dictionary)
+    ts_features, ts_name_list = features.parse_audio_files_predict(TEST_AUDIO_PATH)
     
     # dunno what is going on here.
     tr_labels = features.one_hot_encode(tr_labels)
-    ts_labels = features.one_hot_encode(ts_labels)
     
     # use the above extracted features for the training of the model
-    train.multilayer_neural_network(tr_features, tr_labels, ts_features, ts_labels, dictionary)
+    train.multilayer_neural_network(tr_features, tr_labels, ts_features, ts_name_list, dictionary)
     
 
 # call the main program.
