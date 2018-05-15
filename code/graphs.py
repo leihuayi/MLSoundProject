@@ -3,12 +3,10 @@
 #   I M P O R T     L I B R A R I E S                                                           #
 #                                                                                               #
 #-----------------------------------------------------------------------------------------------#
-import glob
 import os
 import librosa
 import librosa.display
 import numpy as np
-import matplotlib
 import matplotlib.pyplot as plt
 import pandas as pd
 
