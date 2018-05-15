@@ -4,7 +4,7 @@
 #                                                                                               #
 #-----------------------------------------------------------------------------------------------#
 import pandas as pd
-import random
+import os
 
 #***********************************************************************************************#
 #                                                                                               #
@@ -21,3 +21,4 @@ def create_dictionary(file_name):
     return {label: i for i, label in enumerate(labelList)}
 
 def split_data(proba, train_file):
+    print("whatever")
