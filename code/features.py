@@ -71,7 +71,7 @@ def parse_audio_files_train(audio_path, train_csv_path, label_dictionary, file_e
             ext_features = np.hstack([mfccs,chroma,mel,contrast,tonnetz])
             features = np.vstack([features,ext_features])
             labels = np.append(labels, label_dictionary[line["label"]])
-            if line["manually_verified"] == "1":
+            if line["manually_verified"] == 1:
                 verified = np.append(verified, True)    
             else:
                 verified = np.append(verified, False)

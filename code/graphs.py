@@ -142,7 +142,7 @@ def plot_categories():
     axes = category_group.unstack().reindex(category_group.unstack().sum(axis=1).sort_values().index)\
               .plot(kind='bar', stacked=True, title="Number of Audio Samples per Category", figsize=(16,10))
     axes.set_xlabel("Category")
-    axes.set_ylabel("Number of Samples");
+    axes.set_ylabel("Number of Samples")
     plt.show()
 
 
@@ -159,7 +159,7 @@ def main():
     sound_names = data["label"].tolist()
 
     raw_sounds = load_sound_files(sound_file_paths)
-
+    
     #plot_waves(sound_names,raw_sounds)
     #plot_specgram(sound_names,raw_sounds)
     #plot_log_power_specgram(sound_names,raw_sounds)
