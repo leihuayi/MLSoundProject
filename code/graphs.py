@@ -10,11 +10,20 @@ import librosa.display
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
-from matplotlib.pyplot import specgram
+import pandas as pd
 
 TRAIN_CSV = os.path.join(os.path.dirname(__file__),"../data/train.csv")
-TRAIN_AUDIO_PATH = os.path.join(os.path.dirname(__file__),"../data/audio_train/")
+TRAIN_PART_CSV = os.path.join(os.path.dirname(__file__),"../data/train-sample.csv")
 
+#***********************************************************************************************#
+#                                                                                               #
+#   Module:                                                                                     #
+#   load_sound_files()                                                                          #
+#                                                                                               #
+#   Description:                                                                                #
+#   Returns array of raw sounds loaded from librosa.                                            #
+#                                                                                               #
+#***********************************************************************************************#
 def load_sound_files(file_paths):
     raw_sounds = []
     for fp in file_paths:
@@ -22,6 +31,15 @@ def load_sound_files(file_paths):
         raw_sounds.append(X)
     return raw_sounds
 
+#***********************************************************************************************#
+#                                                                                               #
+#   Module:                                                                                     #
+#   plot_waves()                                                                                #
+#                                                                                               #
+#   Description:                                                                                #
+#   Pots sound waves for 4 sound_names                                                          #
+#                                                                                               #
+#***********************************************************************************************#
 def plot_waves(sound_names,raw_sounds):
     i = 1
     fig, axes = plt.subplots(nrows=2, ncols=2)
@@ -34,7 +52,16 @@ def plot_waves(sound_names,raw_sounds):
         i += 1
     plt.suptitle("Figure 1: Waveplot",fontsize=15)
     plt.show()
-    
+
+#***********************************************************************************************#
+#                                                                                               #
+#   Module:                                                                                     #
+#   plot_specgram()                                                                             #
+#                                                                                               #
+#   Description:                                                                                #
+#   Pots sound spectrogram for 4 sounds                                                         #
+#                                                                                               #
+#***********************************************************************************************#    
 def plot_specgram(sound_names,raw_sounds):
     i = 1
     fig, axes = plt.subplots(nrows=2, ncols=2)
@@ -42,12 +69,21 @@ def plot_specgram(sound_names,raw_sounds):
     fig.subplots_adjust(top=0.9)
     for n,f in zip(sound_names,raw_sounds):
         plt.subplot(2,2,i)
-        specgram(np.array(f), Fs=22050)
+        plt.specgram(np.array(f), Fs=22050)
         plt.title(n.title())
         i += 1
     plt.suptitle("Figure 2: Spectrogram",fontsize=15)
     plt.show()
 
+#***********************************************************************************************#
+#                                                                                               #
+#   Module:                                                                                     #
+#   plot_specgram()                                                                             #
+#                                                                                               #
+#   Description:                                                                                #
+#   Pots sound log spectrogram for 4 sounds                                                     #
+#                                                                                               #
+#***********************************************************************************************#    
 def plot_log_power_specgram(sound_names,raw_sounds):
     i = 1
     fig, axes = plt.subplots(nrows=2, ncols=2)
@@ -55,30 +91,78 @@ def plot_log_power_specgram(sound_names,raw_sounds):
     fig.subplots_adjust(top=0.9)
     for n,f in zip(sound_names,raw_sounds):
         plt.subplot(2,2,i)
-        D = librosa.amplitude_to_db(np.abs(librosa.stft(f))**2, ref=np.max)
-        librosa.display.specshow(D,x_axis='time' ,y_axis='log')
+        mfcc = librosa.feature.mfcc(wav, sr = SAMPLE_RATE, n_mfcc=40)
+        mfcc.shape
         plt.title(n.title())
         i += 1
     plt.suptitle("Figure 3: Log power spectrogram",fontsize=15)
     plt.show()
 
+#***********************************************************************************************#
+#                                                                                               #
+#   Module:                                                                                     #
+#   plot_mfcc()                                                                                 #
+#                                                                                               #
+#   Description:                                                                                #
+#   Pots MFCC                                                                                   #
+#                                                                                               #
+#***********************************************************************************************#    
+def plot_mfcc(sound_names,sound_file_paths):
+    i = 1
+    fig, axes = plt.subplots(nrows=2, ncols=2)
+    fig.tight_layout() # Or equivalently,  "plt.tight_layout()"
+    fig.subplots_adjust(top=0.9)
+    for n,f in zip(sound_names,sound_file_paths):
+        X, sample_rate = librosa.load(f)
+        mfcc = librosa.feature.mfcc(X, sr = sample_rate, n_mfcc=40)
+        mfcc.shape
+        plt.subplot(2,2,i)
+        librosa.display.specshow(mfcc, x_axis='time')
+        plt.colorbar()
+        plt.title(n.title())
+        i += 1
+    plt.suptitle("Figure 4: MFCC",fontsize=15)
+    plt.show()
+
+
+#***********************************************************************************************#
+#                                                                                               #
+#   Module:                                                                                     #
+#   plot_categories()                                                                           #
+#                                                                                               #
+#   Description:                                                                                #
+#   Pots samples repartition in plot_categories                                                 #
+#                                                                                               #
+#***********************************************************************************************#    
+def plot_categories():
+    train = pd.read_csv(TRAIN_CSV)
+    category_group = train.groupby(['label', 'manually_verified']).count()
+    fig, axes = plt.subplots()
+    axes = category_group.unstack().reindex(category_group.unstack().sum(axis=1).sort_values().index)\
+              .plot(kind='bar', stacked=True, title="Number of Audio Samples per Category", figsize=(16,10))
+    axes.set_xlabel("Category")
+    axes.set_ylabel("Number of Samples");
+    plt.show()
+
+
+#***********************************************************************************************#
+#                                                                                               #
+#   Module:                                                                                     #
+#   main function                                                                               #
+#                                                                                               #
+#***********************************************************************************************#  
 def main():
-    sound_file_paths = ["../data/audio_train/"+f for f in os.listdir(TRAIN_AUDIO_PATH)]
+    data = pd.read_csv(TRAIN_PART_CSV)
 
-    sound_names = []
-
-    with open(TRAIN_CSV, 'r') as f:
-        lines = f.readlines()
-        for l in lines[1:]:
-            sound_names.append(l.split(",")[1])
-
-    print(sound_file_paths)
-    print(sound_names)
+    sound_file_paths = ["../data/audio_train/"+f for f in data["fname"]]
+    sound_names = data["label"].tolist()
 
     raw_sounds = load_sound_files(sound_file_paths)
 
-    plot_waves(sound_names,raw_sounds)
-    plot_specgram(sound_names,raw_sounds)
-    plot_log_power_specgram(sound_names,raw_sounds)
+    #plot_waves(sound_names,raw_sounds)
+    #plot_specgram(sound_names,raw_sounds)
+    #plot_log_power_specgram(sound_names,raw_sounds)
+    plot_mfcc(sound_names, sound_file_paths)
+    #plot_categories()
 
 main()

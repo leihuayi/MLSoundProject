@@ -22,3 +22,4 @@ USEFUL WEBSITES
 ------------------------------------
 https://medium.com/iotforall/sound-classification-with-tensorflow-8209bdb03dfb
 https://github.com/aqibsaeed/Urban-Sound-Classification
+https://www.kaggle.com/fizzbuzz/beginner-s-guide-to-audio-data
