@@ -5,6 +5,7 @@
 #-----------------------------------------------------------------------------------------------#
 import pandas as pd
 import random
+import os
 
 #***********************************************************************************************#
 #                                                                                               #
@@ -19,5 +20,3 @@ def create_dictionary(file_name):
     df = pd.read_csv(os.path.join(os.path.dirname(__file__), file_name))
     labelList = df.groupby(["label"]).count().index.get_level_values("label").tolist()
     return {label: i for i, label in enumerate(labelList)}
-
-def split_data(proba, train_file):

@@ -3,23 +3,18 @@
 #   I M P O R T     L I B R A R I E S                                                           #
 #                                                                                               #
 #-----------------------------------------------------------------------------------------------#
+import os
 import utils
 import features
 import train
 
 # Define global parameters to be used through out the program
-TRAIN_CSV = "../data/train.csv"
-TRAIN_AUDIO_PATH = "../data/audio_train/"
-TEST_CSV = "../data/verifying.csv"
-TEST_AUDIO_PATH = "../data/audio_verifying"
+TRAIN_CSV = os.path.join(os.path.dirname(__file__),"../data/train.csv")
+TRAIN_AUDIO_PATH = os.path.join(os.path.dirname(__file__),"../data/audio_train/")
+TEST_CSV = os.path.join(os.path.dirname(__file__),"../data/test.csv")
+TEST_AUDIO_PATH = os.path.join(os.path.dirname(__file__),"../data/audio_test")
+OUTPUT_CSV = os.path.join(os.path.dirname(__file__),"../data/submission.csv")
 
-
-def create_label_dictionary(csv_path):
-        df = pd.read_csv(os.path.join(os.path.dirname(__file__), csv_path))
-    labelList = df.groupby(["label"]).count().index.get_level_values("label").tolist()
-    for i in range(len(labelList)):
-        dictionary[labelList[i]] = i
-    print(dictionary)
 
 #***********************************************************************************************#
 #                                                                                               #
