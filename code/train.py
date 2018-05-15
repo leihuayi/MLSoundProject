@@ -17,7 +17,7 @@ import tensorflow as tf
 #   features and selected options.                                                              #
 #                                                                                               #
 #***********************************************************************************************#
-def multilayer_neural_network(tr_features, tr_labels, dictionary, training_epochs = 50):
+def multilayer_neural_network(tr_features, tr_labels, ts_leatures, ts_labels, dictionary, training_epochs = 50):
     # initialize the beginning paramters.
     n_dim = tr_features.shape[1]
     n_classes = len(dictionary)

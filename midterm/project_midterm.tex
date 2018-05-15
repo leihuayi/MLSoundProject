@@ -63,22 +63,22 @@ Tsinghua University\\
 		\url{https://www.kaggle.com/c/freesound-audio-tagging/data}
 		\end{center}
 
-		We use a first subset au audio files \emph{audio_train} to train our model, and a second subset \emph{audio_test} for evaluating our model.\\
+		We use a first subset au audio files \emph{audio\_train} to train our model, and a second subset \emph{audio\_test} for evaluating our model.\\
 		The labels for train dataset are wirtten in train.csv. It contains the following information:
-			\begin{itemize}
-			    \item fname: the file name
-			    \item label: the audio classification label (ground truth
-			    \item manually\_verified: Boolean (1 or 0) flag to indicate whether or not that annotation has been manually verified.
-			\end{itemize}
+		\begin{itemize}
+		    \item fname: the file name
+		    \item label: the audio classification label (ground truth
+		    \item manually\_verified: Boolean (1 or 0) flag to indicate whether or not that annotation has been manually verified.
+		\end{itemize}
 
 	\subsection{Dataset analysis}
 		Show nice graphs :
 		\begin{itemize}
-			    \item category distribution
-			    \item waveplot
-			    \item spectrogram
-			    \item log spectrogram
-			\end{itemize}
+		    \item category distribution
+		    \item waveplot
+		    \item spectrogram
+		    \item log spectrogram
+		\end{itemize}
 
 
 
@@ -98,7 +98,7 @@ Tsinghua University\\
 		\newline
 		However, in our case, we don't want to extract and analyse every little part that consists our general sound input, we only want to classify it. Therefore HMM is not appropriate for making this kind of task on our data.\\
 		\newline
-		This is why we decided to follow the example of Zhang et. al.\cite{cite6} and reach forward for \textbf{Convolutional Neural Networks}. Few papers in our proposal mentionned this technique as it is very novel and most papers surveyed dated back to before 2014. However we could find many recent works on the net confirming this technique was effective for environment sound classification.\\
+		After some reflection, a good algorithm being able to clasifiy such complex data appear to be \textbf{Neural Networks}. Few papers in our proposal, like Zhang et. al.\cite{cite6}, mentionned this technique as it is very novel and most papers surveyed dated back to before 2014. However we could find many recent works on the net confirming this technique was effective for environment sound classification.\\
 		We first tried to make a simple Neural Network and test it on our extracted feature data.\\
 
 		We used Tensorflow\footnote{\url{http://www.tensorflow.org}} and ran it on a Microsoft Azure Data Science Virtual Machine with HDD.
