@@ -64,7 +64,7 @@ def parse_audio_files_train(audio_path, train_csv_path, label_dictionary, file_e
     # initialize variables
     features, labels, verified = np.empty((0,193)), np.empty(0), np.empty(0)    
     # read audio files and extract features    
-    data = pd.read_csv(os.path.join(os.path.dirname(__file__), test_csv_path))
+    data = pd.read_csv(os.path.join(os.path.dirname(__file__), train_csv_path))
     for i in range(data.shape[0]):
             line = data.iloc[i]
             fn = audio_path+line["fname"]
