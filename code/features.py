@@ -40,14 +40,12 @@ def parse_audio_files_predict(audio_path, test_csv_path, file_ext="*.wav"):
     # initialize variables
     features = np.empty((0,193))
     # read audio files and extract features
-    with open(os.path.join(os.path.dirname(__file__), test_csv_path), 'r') as f:
-        lines = f.readlines()
-        for line in lines[1:]:
-            splits = line.split(",")
-            fn = audio_path+splits[0]
-            mfccs, chroma, mel, contrast,tonnetz = extract_feature(fn)
-            ext_features = np.hstack([mfccs,chroma,mel,contrast,tonnetz])
-            features = np.vstack([features,ext_features])
+    data = pd.read_csv(os.path.join(os.path.dirname(__file__), test_csv_path))
+    for fname in data["fname"]:
+        fn = audio_path+fname
+        mfccs, chroma, mel, contrast,tonnetz = extract_feature(fn)
+        ext_features = np.hstack([mfccs,chroma,mel,contrast,tonnetz])
+        features = np.vstack([features,ext_features])
     
     # return the extracted features to the calling program
     return np.array(features)
@@ -65,16 +63,15 @@ def parse_audio_files_train(audio_path, train_csv_path, label_dictionary, file_e
     # initialize variables
     features, labels, verified = np.empty((0,193)), np.empty(0), np.empty(0)    
     # read audio files and extract features    
-    with open(os.path.join(os.path.dirname(__file__), train_csv_path), 'r') as f:
-        lines = f.readlines()
-        for line in lines[1:]:
-            splits = line.split(",")
-            fn = audio_path+splits[0]
+    data = pd.read_csv(os.path.join(os.path.dirname(__file__), test_csv_path))
+    for i in range(data.shape[0]):
+            line = data.iloc[i]
+            fn = audio_path+line["fname"]
             mfccs, chroma, mel, contrast,tonnetz = extract_feature(fn)
             ext_features = np.hstack([mfccs,chroma,mel,contrast,tonnetz])
             features = np.vstack([features,ext_features])
-            labels = np.append(labels, label_dictionary[splits[1]])
-            if splits[2].rstrip() == "1":
+            labels = np.append(labels, label_dictionary[line["label"]])
+            if line["manually_verified"] == "1":
                 verified = np.append(verified, True)    
             else:
                 verified = np.append(verified, False)

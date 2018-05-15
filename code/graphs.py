@@ -14,6 +14,7 @@ import pandas as pd
 
 TRAIN_CSV = os.path.join(os.path.dirname(__file__),"../data/train.csv")
 TRAIN_PART_CSV = os.path.join(os.path.dirname(__file__),"../data/train-sample.csv")
+TRAIN_AUDIO_PATH = "../data/audio_train/"
 
 #***********************************************************************************************#
 #                                                                                               #
@@ -154,7 +155,7 @@ def plot_categories():
 def main():
     data = pd.read_csv(TRAIN_PART_CSV)
 
-    sound_file_paths = ["../data/audio_train/"+f for f in data["fname"]]
+    sound_file_paths = [TRAIN_AUDIO_PATH+f for f in data["fname"]]
     sound_names = data["label"].tolist()
 
     raw_sounds = load_sound_files(sound_file_paths)
@@ -162,7 +163,7 @@ def main():
     #plot_waves(sound_names,raw_sounds)
     #plot_specgram(sound_names,raw_sounds)
     #plot_log_power_specgram(sound_names,raw_sounds)
-    plot_mfcc(sound_names, sound_file_paths)
-    #plot_categories()
+    #plot_mfcc(sound_names, sound_file_paths)
+    plot_categories()
 
 main()
