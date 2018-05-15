@@ -6,7 +6,7 @@
 import os
 import librosa
 import numpy as np
-import panda as pd
+import pandas as pd
 
 #***********************************************************************************************#
 #                                                                                               #
@@ -46,8 +46,7 @@ def parse_audio_files_predict(audio_path, test_csv_path, file_ext="*.wav"):
         fn = audio_path+fname
         mfccs, chroma, mel, contrast,tonnetz = extract_feature(fn)
         ext_features = np.hstack([mfccs,chroma,mel,contrast,tonnetz])
-        features = np.vstack([features,ext_features])
-    
+        features = np.vstack([features,ext_features])  
     # return the extracted features to the calling program
     return np.array(features)
 
@@ -64,7 +63,7 @@ def parse_audio_files_train(audio_path, train_csv_path, label_dictionary, file_e
     # initialize variables
     features, labels, verified = np.empty((0,193)), np.empty(0), np.empty(0)    
     # read audio files and extract features    
-    data = pd.read_csv(os.path.join(os.path.dirname(__file__), test_csv_path))
+    data = pd.read_csv(os.path.join(os.path.dirname(__file__), train_csv_path))
     for i in range(data.shape[0]):
             line = data.iloc[i]
             fn = audio_path+line["fname"]
@@ -78,3 +77,19 @@ def parse_audio_files_train(audio_path, train_csv_path, label_dictionary, file_e
                 verified = np.append(verified, False)
     # return the extracted features to the calling program
     return np.array(features), np.array(labels, dtype = np.int), np.array(verified, dtype=np.bool)
+
+#***********************************************************************************************#
+#                                                                                               #
+#   Module:                                                                                     #
+#   one_hot_encode()                                                                            #
+#                                                                                               #
+#   Description:                                                                                #
+#   Don't know what this is about seriously.                                                    #
+#                                                                                               #
+#***********************************************************************************************#
+def one_hot_encode(labels):
+    n_labels = len(labels)
+    n_unique_labels = len(np.unique(labels))
+    one_hot_encode = np.zeros((n_labels,n_unique_labels))
+    one_hot_encode[np.arange(n_labels), labels] = 1
+    return one_hot_encode

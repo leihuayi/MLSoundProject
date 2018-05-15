@@ -6,6 +6,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
+from sklearn.metrics import precision_recall_fscore_support
 
 #***********************************************************************************************#
 #                                                                                               #
@@ -17,7 +18,7 @@ import tensorflow as tf
 #   features and selected options.                                                              #
 #                                                                                               #
 #***********************************************************************************************#
-def multilayer_neural_network(tr_features, tr_labels, ts_leatures, ts_labels, dictionary, training_epochs = 50):
+def multilayer_neural_network(tr_features, tr_labels, ts_features, ts_labels, dictionary, training_epochs = 50):
     # initialize the beginning paramters.
     n_dim = tr_features.shape[1]
     n_classes = len(dictionary)
@@ -60,10 +61,9 @@ def multilayer_neural_network(tr_features, tr_labels, ts_leatures, ts_labels, di
         
         y_pred = sess.run(tf.argmax(y_,1),feed_dict={X: ts_features})
         y_true = sess.run(tf.argmax(ts_labels,1))
-        print("Test accuracy: ",round(session.run(accuracy, 
-            feed_dict={X: ts_features,Y: ts_labels}),3))
+        print("Test accuracy: ",round(sess.run(accuracy, feed_dict={X: ts_features,Y: ts_labels}),3))
 
-    fig = plt.figure(figsize=(10,8))
+    plt.figure(figsize=(10,8))
     plt.plot(cost_history)
     plt.axis([0,training_epochs,0,np.max(cost_history)])
     plt.show()
