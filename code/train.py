@@ -58,7 +58,7 @@ def multilayer_neural_network(tr_features, tr_labels, ts_features, n_classes, tr
         y_pred = sess.run(tf.argmax(y_,1),feed_dict={X: ts_features})
 
     # plot cost history
-    df = pd.DataFrame(np_array)
+    df = pd.DataFrame(cost_history)
     df.to_csv("../data/cost_history.csv")
     #plt.figure(figsize=(10,8))
     #plt.plot(cost_history)
