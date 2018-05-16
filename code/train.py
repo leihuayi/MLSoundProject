@@ -6,6 +6,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
+import pandas as pd 
 
 #***********************************************************************************************#
 #                                                                                               #
@@ -56,10 +57,13 @@ def multilayer_neural_network(tr_features, tr_labels, ts_features, n_classes, tr
         
         y_pred = sess.run(tf.argmax(y_,1),feed_dict={X: ts_features})
 
-    plt.figure(figsize=(10,8))
-    plt.plot(cost_history)
-    plt.axis([0,training_epochs,0,np.max(cost_history)])
-    plt.show()
+    # plot cost history
+    df = pd.DataFrame(np_array)
+    df.to_csv("../data/cost_history.csv")
+    #plt.figure(figsize=(10,8))
+    #plt.plot(cost_history)
+    #plt.axis([0,training_epochs,0,np.max(cost_history)])
+    #plt.show()
     
     # return the predicted values back to the calling program
     return y_pred
