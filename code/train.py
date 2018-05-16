@@ -42,7 +42,7 @@ def multilayer_neural_network(tr_features, tr_labels, ts_features, n_classes, tr
     b = tf.Variable(tf.random_normal([n_classes], mean = 0, stddev=sd))
     y_ = tf.nn.softmax(tf.matmul(h_2,W) + b)
 
-    init = tf.initialize_all_variables()
+    init = tf.global_variables_initializer()
     
     cost_function = -tf.reduce_sum(Y * tf.log(y_))
     optimizer = tf.train.GradientDescentOptimizer(learning_rate).minimize(cost_function)
@@ -52,6 +52,9 @@ def multilayer_neural_network(tr_features, tr_labels, ts_features, n_classes, tr
     with tf.Session() as sess:
         sess.run(init)
         for epoch in range(training_epochs):            
+            # print a log message for status update
+            print("running the training epoch %d..." % (epoch+1))
+            # running the training_epoch numbered epoch
             _,cost = sess.run([optimizer,cost_function],feed_dict={X:tr_features,Y:tr_labels})
             cost_history = np.append(cost_history,cost)
         
