@@ -6,6 +6,7 @@
 import os
 import glob
 import librosa
+import utils
 import numpy as np
 import pandas as pd
 
@@ -32,6 +33,36 @@ def extract_feature(file_name):
 #***********************************************************************************************#
 #                                                                                               #
 #   Module:                                                                                     #
+#   p_train_thread()                                                                            #
+#                                                                                               #
+#   Description:                                                                                #
+#   Internal function to parse training audio files in multi-threaded environment.              #
+#                                                                                               #
+#***********************************************************************************************#
+def p_train_thread(audio_path, label_dictionary, data):
+    # initialize variables
+    features, labels, verified = np.empty((0,193)), np.empty(0), np.empty(0)    
+    # process this threads share of workload
+    for i in range(data.shape[0]):
+            # add a log message to be displayed after processing every 250 files.
+            if i%250 == 0:
+                utils.write_log_msg("FEATURE_TRAIN - {0}...".format(i))
+            line = data.iloc[i]
+            fn = audio_path+line["fname"]
+            mfccs, chroma, mel, contrast,tonnetz = extract_feature(fn)
+            ext_features = np.hstack([mfccs,chroma,mel,contrast,tonnetz])
+            features = np.vstack([features,ext_features])
+            labels = np.append(labels, label_dictionary[line["label"]])
+            if line["manually_verified"] == 1:
+                verified = np.append(verified, True)    
+            else:
+                verified = np.append(verified, False)
+    # return the extracted features to the calling program
+    return features, labels, verified
+
+#***********************************************************************************************#
+#                                                                                               #
+#   Module:                                                                                     #
 #   parse_audio_files_predict()                                                                 #
 #                                                                                               #
 #   Description:                                                                                #
@@ -48,6 +79,9 @@ def parse_audio_files_predict(audio_path, file_ext="*.wav"):
         ext_features = np.hstack([mfccs,chroma,mel,contrast,tonnetz])
         features = np.vstack([features,ext_features])
         name_list.append(fname.split("/")[-1])
+        # add a log message to be displayed after processing every 250 files.
+        if len(name_list)%250 == 0:
+            utils.write_log_msg("FEATURE_PREDICT - {0}...".format(len(name_list)))
     # return the extracted features to the calling program
     return np.array(features), name_list
 
@@ -63,19 +97,31 @@ def parse_audio_files_predict(audio_path, file_ext="*.wav"):
 def parse_audio_files_train(audio_path, train_csv_path, label_dictionary, file_ext="*.wav"):
     # initialize variables
     features, labels, verified = np.empty((0,193)), np.empty(0), np.empty(0)    
-    # read audio files and extract features    
-    data = pd.read_csv(train_csv_path)
-    for i in range(data.shape[0]):
-            line = data.iloc[i]
-            fn = audio_path+line["fname"]
-            mfccs, chroma, mel, contrast,tonnetz = extract_feature(fn)
-            ext_features = np.hstack([mfccs,chroma,mel,contrast,tonnetz])
-            features = np.vstack([features,ext_features])
-            labels = np.append(labels, label_dictionary[line["label"]])
-            if line["manually_verified"] == 1:
-                verified = np.append(verified, True)    
-            else:
-                verified = np.append(verified, False)
+    
+    # read audio files using pandas and split it into chunks of 500 files each
+    data = pd.read_csv(train_csv_path, chunksize=500)
+    
+    # create a thread pool to process the workload
+    thread_pool = []
+        
+    # each chunk is the amount of data that will be processed by a single thread
+    for chunk in data:
+        thread_pool.append(utils.ThreadWithReturnValue(target=p_train_thread, args=(audio_path, label_dictionary, chunk)))
+    
+    # print a log message for status update
+    utils.write_log_msg("TRAIN: creating a total of {0} threads...".format(len(thread_pool)))  
+    
+    # start the entire thread pool
+    for single_thread in thread_pool:
+        single_thread.start()
+    
+    # wait for thread pool to return their results of processing
+    for single_thread in thread_pool:
+        ft, lbl, stat = single_thread.join()
+        features = np.vstack([features,ft])
+        labels = np.append(labels, lbl)
+        verified = np.append(verified, stat)
+    
     # return the extracted features to the calling program
     return np.array(features), np.array(labels, dtype = np.int), np.array(verified, dtype=np.bool)
 
