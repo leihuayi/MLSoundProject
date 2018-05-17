@@ -54,12 +54,13 @@ def multilayer_neural_network(tr_features, tr_labels, ts_features, n_classes, tr
         for epoch in range(training_epochs):            
             _,cost = sess.run([optimizer,cost_function],feed_dict={X:tr_features,Y:tr_labels})
             cost_history = np.append(cost_history,cost)
+            df = pd.DataFrame(cost_history)
+            df.to_csv("../data/cost_history.csv")
         
         y_pred = sess.run(tf.argmax(y_,1),feed_dict={X: ts_features})
 
     # plot cost history
-    df = pd.DataFrame(cost_history)
-    df.to_csv("../data/cost_history.csv")
+    
     #plt.figure(figsize=(10,8))
     #plt.plot(cost_history)
     #plt.axis([0,training_epochs,0,np.max(cost_history)])
