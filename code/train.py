@@ -4,9 +4,9 @@
 #                                                                                               #
 #-----------------------------------------------------------------------------------------------# 
 import numpy as np
-import matplotlib.pyplot as plt
 import tensorflow as tf
-import pandas as pd 
+import pandas as pd
+import utils
 
 #***********************************************************************************************#
 #                                                                                               #
@@ -53,7 +53,7 @@ def multilayer_neural_network(tr_features, tr_labels, ts_features, n_classes, tr
         sess.run(init)
         for epoch in range(training_epochs):            
             # print a log message for status update
-            print("running the training epoch %d..." % (epoch+1))
+            utils.write_log_msg("running the training epoch {0}...".format(epoch+1))
             # running the training_epoch numbered epoch
             _,cost = sess.run([optimizer,cost_function],feed_dict={X:tr_features,Y:tr_labels})
             cost_history = np.append(cost_history,cost)
