@@ -98,3 +98,18 @@ def initialize_log(log_path = DEFAULT_LOG_PATH):
     # write the log message to the file
     with open(log_path, 'a') as log_file:
         log_file.write(header)
+
+#***********************************************************************************************#
+#                                                                                               #
+#   Module:                                                                                     #
+#   generate_chunks()                                                                           #
+#                                                                                               #
+#   Description:                                                                                #
+#   Splits the given list into evenly sized chunks of provided size.                            #
+#                                                                                               #
+#***********************************************************************************************#
+def generate_chunks(input_list, chunk_size):
+    # For item i in a range that is a length of input_list,
+    for i in range(0, len(input_list), chunk_size):
+        # Create an index range for input_list of chunk_size items:
+        yield input_list[i:i+chunk_size]

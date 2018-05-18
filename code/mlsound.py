@@ -15,7 +15,7 @@ import train
 #-----------------------------------------------------------------------------------------------#
 TRAIN_CSV = os.path.join(os.path.dirname(__file__),"../data/train.csv")
 TRAIN_AUDIO_PATH = os.path.join(os.path.dirname(__file__),"../data/audio_train/")
-TEST_AUDIO_PATH = os.path.join(os.path.dirname(__file__),"../data/audio_test")
+TEST_AUDIO_PATH = os.path.join(os.path.dirname(__file__),"../data/audio_test/")
 OUTPUT_CSV = os.path.join(os.path.dirname(__file__),"../data/submission.csv")
 
 #***********************************************************************************************#

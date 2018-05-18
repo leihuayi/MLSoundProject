@@ -10,6 +10,13 @@ import utils
 import numpy as np
 import pandas as pd
 
+#-----------------------------------------------------------------------------------------------#
+#                                                                                               #
+#   Define global parameters to be used through out the program                                 #
+#                                                                                               #
+#-----------------------------------------------------------------------------------------------#
+CHUNK_SIZE = 500
+
 #***********************************************************************************************#
 #                                                                                               #
 #   Module:                                                                                     #
@@ -59,6 +66,27 @@ def p_train_thread(audio_path, label_dictionary, data):
                 verified = np.append(verified, False)
     # return the extracted features to the calling program
     return features, labels, verified
+#***********************************************************************************************#
+#                                                                                               #
+#   Module:                                                                                     #
+#   p_train_thread()                                                                            #
+#                                                                                               #
+#   Description:                                                                                #
+#   Internal function to parse training audio files in multi-threaded environment.              #
+#                                                                                               #
+#***********************************************************************************************#
+def p_predict_thread(audio_path, name_list):
+    # initialize variables
+    features = np.empty((0,193))
+    # traverse through the name list and process this threads workload
+    for fname in name_list:
+        mfccs, chroma, mel, contrast,tonnetz = extract_feature(audio_path+fname)
+        ext_features = np.hstack([mfccs,chroma,mel,contrast,tonnetz])
+        features = np.vstack([features,ext_features])
+        # add a log message to be displayed after processing every 250 files.
+        if len(features)%250 == 0:
+            utils.write_log_msg("FEATURE_PREDICT - {0}...".format(len(features)))
+    return features
 
 #***********************************************************************************************#
 #                                                                                               #
@@ -70,18 +98,35 @@ def p_train_thread(audio_path, label_dictionary, data):
 #                                                                                               #
 #***********************************************************************************************#
 def parse_audio_files_predict(audio_path, file_ext="*.wav"):
+    
     # initialize variables
     features = np.empty((0,193))
-    name_list = []
-    # read audio files and extract features
-    for fname in glob.glob(os.path.join(audio_path, file_ext)):
-        mfccs, chroma, mel, contrast,tonnetz = extract_feature(fname)
-        ext_features = np.hstack([mfccs,chroma,mel,contrast,tonnetz])
-        features = np.vstack([features,ext_features])
-        name_list.append(fname.split("/")[-1])
-        # add a log message to be displayed after processing every 250 files.
-        if len(name_list)%250 == 0:
-            utils.write_log_msg("FEATURE_PREDICT - {0}...".format(len(name_list)))
+    
+    # get the list of files in the audio folder
+    name_list = os.listdir(audio_path)
+    
+    # create a thread pool to process the workload
+    thread_pool = []
+    
+    # split the filename list into chunks of 'CHUNK_SIZE' files each
+    data = utils.generate_chunks(name_list, CHUNK_SIZE)
+    
+    # each chunk is the amount of data that will be processed by a single thread
+    for chunk in data:
+        thread_pool.append(utils.ThreadWithReturnValue(target=p_predict_thread, args=(audio_path, chunk)))
+    
+    # print a log message for status update
+    utils.write_log_msg("PREDICT: creating a total of {0} threads...".format(len(thread_pool)))  
+    
+    # start the entire thread pool
+    for single_thread in thread_pool:
+        single_thread.start()
+    
+    # wait for thread pool to return their results of processing
+    for single_thread in thread_pool:
+        ft = single_thread.join()
+        features = np.vstack([features,ft])
+    
     # return the extracted features to the calling program
     return np.array(features), name_list
 
@@ -98,8 +143,8 @@ def parse_audio_files_train(audio_path, train_csv_path, label_dictionary, file_e
     # initialize variables
     features, labels, verified = np.empty((0,193)), np.empty(0), np.empty(0)    
     
-    # read audio files using pandas and split it into chunks of 500 files each
-    data = pd.read_csv(train_csv_path, chunksize=500)
+    # read audio files using pandas and split it into chunks of 'CHUNK_SIZE' files each
+    data = pd.read_csv(train_csv_path, chunksize=CHUNK_SIZE)
     
     # create a thread pool to process the workload
     thread_pool = []
