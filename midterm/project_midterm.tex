@@ -3,7 +3,7 @@
 \usepackage{hyperref}
 \usepackage{cite}
 \usepackage{url}
-
+\usepackage{graphicx}
 
 \title{Mid-Term Paper : \\Freesound General-Purpose Audio Tagging Challenge}
 
@@ -72,14 +72,38 @@ Tsinghua University\\
 		\end{itemize}
 
 	\subsection{Dataset analysis}
-		Show nice graphs :
+		We first plotted the distribution of samples per label \ref{fig:category_distribution}.
+		\begin{figure}
+		  \includegraphics[width=\linewidth]{category_distribution.png}
+		  \caption{Distribution of samples per category}
+		  \label{fig:category_distribution}
+		\end{figure}
+		We notice two phenomena :
 		\begin{itemize}
-		    \item category distribution
-		    \item waveplot
-		    \item spectrogram
-		    \item log spectrogram
+		    \item There is a highly unequal distribution of samples over the labels
+		    \item The number of verified data varies over the labels
 		\end{itemize}
 
+		We can visualize the difference between the samples by using some useful tools from the python package for music and audio analysis LibROSA\footnote{\url{http://librosa.github.io/librosa/}}. We picked randomly 4 samples \emph{Oboe, Fireworks, Cello, Harmonica} and plot various graphs \ref{graphs} :
+
+		\begin{itemize}
+		    \item The Waveplot
+		    \item The Spectrogram
+		    \item The Log Spectrogram
+		\end{itemize}
+
+
+		\begin{figure}
+		  \includegraphics[width=\linewidth]{waveplot.png}
+		  \includegraphics[width=\linewidth]{spectrogram.png}
+		  \includegraphics[width=\linewidth]{logspectrogram.png}
+		  \caption{Useful tools for analysis sounds provided by Librosa}
+		  \label{fig:graphs}
+		\end{figure}
+
+		We see that we get very different kinds of outputs and there is no way to visually guess which graphs belong to which sound.
+		Usually, in sound analysis, the raw samples are very complex and it is difficult to get valuable information directly from them.
+		This is why we won't use the raw samples but extract some features from the sample which will, in contrary, give significant information that will help us make the classification.
 
 
 \section{Feature Extraction}
@@ -88,27 +112,33 @@ Tsinghua University\\
 		Why use feature extraction ? Use mathematics \url{http://practicalcryptography.com/miscellaneous/machine-learning/guide-mel-frequency-cepstral-coefficients-mfccs/}
 
 	\subsection{Implementation}
-		We used the python package for music and audio analysis LibROSA\footnote{\url{http://librosa.github.io/librosa/}}, which is widely used in many works related to sound classification such as K. Pizcack's \cite{cite2}.\\
+		We used the librabry LibROSA, which appears in many works related to sound classification such as K. Pizcack's \cite{cite2}.\\
+
+		Explain why not only use mfcc ?
 		\newline
-		Show graph mfcc.png
+		Here are some examples of the output of MFCC using Librosa :
+		\begin{figure}
+		  \includegraphics[width=\linewidth]{mfcc.png}
+		  \caption{Mel Frequency Cepstral Coefficients}
+		\end{figure}
 	
 \section{A Simple Neural Network}
-		In our project proposal, we proposed using Hidden Markov Model algorithm to classifiy the sounds.\\
+		In our project proposal, we first proposed using Hidden Markov Model algorithm to classifiy the sounds.\\
 		This choice was made with very little knowledge of this technique, because a few papers using it obtained good results \cite{cite3} \cite{cite4}. However after extensive research of the inner functionning of HMMs, we understood why many other papers of our survey disapproved using this algorithm \cite{cite5} \cite{cite6}. HMM's idea is to start from a known final state, and try to guess which sequence of actions was followed in order to get to that result. This path, or sequence of actions, is unknown hence the adjective \emph{hidden}. HMM are therefore very useful in cases there is an actual path to find, for instance in board games or speech recognition : in the latter case, the path consists of \emph{each word} spoken in the sentence.\\
 		\newline
 		However, in our case, we don't want to extract and analyse every little part that consists our general sound input, we only want to classify it. Therefore HMM is not appropriate for making this kind of task on our data.\\
 		\newline
-		After some reflection, a good algorithm being able to clasifiy such complex data appear to be \textbf{Neural Networks}. Few papers in our proposal, like Zhang et. al.\cite{cite6}, mentionned this technique as it is very novel and most papers surveyed dated back to before 2014. However we could find many recent works on the net confirming this technique was effective for environment sound classification.\\
+		After some reflection, a good range of algorithms being able to classifiy such complex data appear to be \textbf{Neural Networks}. Few papers in our proposal, like Zhang et. al.\cite{cite6}, mentionned this technique as it is very novel and most papers surveyed dated back to before 2014. However we could find many recent works on the net confirming this technique was effective for environment sound classification.\\
 		We first tried to make a simple Neural Network and test it on our extracted feature data.\\
 
-		We used Tensorflow\footnote{\url{http://www.tensorflow.org}} and ran it on a Microsoft Azure Data Science Virtual Machine with HDD.
+		We used the Tensorflow\footnote{\url{http://www.tensorflow.org}} machine learning framework to create the Neural Network and ran it on a NV6 Microsoft Azure Data Science Virtual Machine.
 
 \section{Future Work}
-	We will try to implement a complex Convolutional Neural Network to classify our data.
+	We will try to incrementally complexify the structure of out Neural Network. We will first use a Convolutional Neural Network, as presented in Zhang et. al.\'s work\cite{cite6}. Since we are processing an audio signal, a 1-dimension CNN should be enough, but we can try using 2D CNN if the results are not concluant. We will then try to combine different CNNs to get more precise results if we have time.
 
 \subsubsection*{Acknowledgments}
 
-	This project was supported by Tsinghua University, in the wake of the course of Machine Learning from the Master of Advanced Computing.
+	This project was led during the Machine Learning course from the Master of Advanced Computing of Tsinghua University. The Azure Virtual Machines were kindly provided by Pr. Jun Zhu\url{http://ml.cs.tsinghua.edu.cn/~jun/index.shtml} of the Machine Learning department of Tsinghua University.
 
 \nocite{*}
 \bibliographystyle{unsrt}
