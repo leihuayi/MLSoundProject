@@ -11,3 +11,5 @@ midterm/project_midterm.pdf
 midterm/project_midterm.bbl
 midterm/project_midterm.blg
 midterm/project_midterm.out
+data/*
+code/__pycache__/*

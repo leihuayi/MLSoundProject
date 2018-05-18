@@ -3,9 +3,37 @@
 #   I M P O R T     L I B R A R I E S                                                           #
 #                                                                                               #
 #-----------------------------------------------------------------------------------------------#
-import pandas as pd
 import os
+import time
+import pandas as pd
+from threading import Thread
 
+#-----------------------------------------------------------------------------------------------#
+#                                                                                               #
+#   Define global parameters to be used through out the program                                 #
+#                                                                                               #
+#-----------------------------------------------------------------------------------------------#
+DEFAULT_LOG_PATH = os.path.join(os.path.dirname(__file__),"../data/status.txt")
+
+#***********************************************************************************************#
+#                                                                                               #
+#   Class:                                                                                      #
+#   ThreadWithReturnValue                                                                       #
+#                                                                                               #
+#   Description:                                                                                #
+#   Creates a dictionary of labels from a .csv file to be used for training.                    #
+#                                                                                               #
+#***********************************************************************************************#
+class ThreadWithReturnValue(Thread):
+    def __init__(self, group=None, target=None, name=None, args=(), kwargs=None, *, daemon=None):
+        Thread.__init__(self, group, target, name, args, kwargs, daemon=daemon)
+        self._return = None
+    def run(self):
+        if self._target is not None:
+            self._return = self._target(*self._args, **self._kwargs)
+    def join(self):
+        Thread.join(self)
+        return self._return
 #***********************************************************************************************#
 #                                                                                               #
 #   Module:                                                                                     #
@@ -34,3 +62,39 @@ def print_csv_file(predicts, name_list, dictionary, output_path):
     file_.write("fname,labels\n")
     for i, value in enumerate(predicts):
         file_.write("%s,%s\n" % (name_list[i], [k for k, v in dictionary.items() if v == value][0]))
+
+#***********************************************************************************************#
+#                                                                                               #
+#   Module:                                                                                     #
+#   write_log_msg()                                                                             #
+#                                                                                               #
+#   Description:                                                                                #
+#   Write status message to log file.                                                           #
+#                (keep the console clean - console protection association :D)                   #
+#                                                                                               #
+#***********************************************************************************************#
+def write_log_msg(message="", log_path = DEFAULT_LOG_PATH, newline = True):
+    # check if newline feed needs to be added
+    if newline:
+        message = message + "\n"
+    # write the log message to the file
+    with open(log_path, 'a') as log_file:
+        log_file.write(message)
+
+#***********************************************************************************************#
+#                                                                                               #
+#   Module:                                                                                     #
+#   initialize_log()                                                                            #
+#                                                                                               #
+#   Description:                                                                                #
+#   Prepare the log file by printing header with run info.                                      #
+#                                                                                               #
+#***********************************************************************************************#
+def initialize_log(log_path = DEFAULT_LOG_PATH):
+    # prepare header for the log file
+    header =    "\n\n\n##################################################################################\n"
+    header = header + "#    RUN DATE: " + time.strftime("%d/%m/%Y") + "                                  RUN TIME: " + time.strftime("%H:%M:%S") + "    #\n"
+    header = header + "##################################################################################\n\n"
+    # write the log message to the file
+    with open(log_path, 'a') as log_file:
+        log_file.write(header)
