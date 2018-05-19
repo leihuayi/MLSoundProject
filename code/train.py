@@ -56,7 +56,7 @@ def multilayer_neural_network(tr_features, tr_labels, ts_features, n_classes, tr
             # running the training_epoch numbered epoch
             _,cost = sess.run([optimizer,cost_function],feed_dict={X:tr_features,Y:tr_labels})
             cost_history = np.append(cost_history,cost)
-        
+        # predict results based on the trained model
         y_pred = sess.run(tf.argmax(y_,1),feed_dict={X: ts_features})
 
     # plot cost history
