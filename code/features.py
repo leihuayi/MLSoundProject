@@ -27,7 +27,7 @@ CHUNK_SIZE = 500
 #                                                                                               #
 #***********************************************************************************************#
 def extract_feature(file_name):
-    X, sample_rate = librosa.load(file_name)
+    X, sample_rate = librosa.load(file_name, res_type='kaiser_fast')
     stft = np.abs(librosa.stft(X))
     mfccs = np.mean(librosa.feature.mfcc(y=X, sr=sample_rate, n_mfcc=40).T,axis=0)
     chroma = np.mean(librosa.feature.chroma_stft(S=stft, sr=sample_rate).T,axis=0)
