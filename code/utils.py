@@ -21,7 +21,7 @@ DEFAULT_LOG_PATH = os.path.join(os.path.dirname(__file__),"../data/status.txt")
 #   ThreadWithReturnValue                                                                       #
 #                                                                                               #
 #   Description:                                                                                #
-#   Creates a dictionary of labels from a .csv file to be used for training.                    #
+#   Runs program in threads to speed up computation                                             #
 #                                                                                               #
 #***********************************************************************************************#
 class ThreadWithReturnValue(Thread):

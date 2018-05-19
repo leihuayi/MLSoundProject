@@ -131,7 +131,7 @@ def parse_audio_files_train(audio_path, train_csv_path, label_dictionary, file_e
 #   one_hot_encode()                                                                            #
 #                                                                                               #
 #   Description:                                                                                #
-#   Don't know what this is about seriously.                                                    #
+#   Creates a matrix size num_samples x num_labels with (i,j) = 1(sample i has label j)         #
 #                                                                                               #
 #***********************************************************************************************#
 def one_hot_encode(labels):

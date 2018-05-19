@@ -102,7 +102,7 @@ Tsinghua University\\
 		\end{figure}
 
 		We see that we get very different kinds of outputs and there is no way to visually guess which graphs belong to which sound.
-		Usually, in sound analysis, the raw samples are very complex and it is difficult to get valuable information directly from them.
+		Usually, in sound analysis, the raw samples are very complex and it is difficult to get valuable information directly from them, especially if they contain noise.
 		This is why we won't use the raw samples but extract some features from the sample which will, in contrary, give significant information that will help us make the classification.
 
 
@@ -110,6 +110,7 @@ Tsinghua University\\
 
 	\subsection{Theory}
 		Why use feature extraction ? Use mathematics \url{http://practicalcryptography.com/miscellaneous/machine-learning/guide-mel-frequency-cepstral-coefficients-mfccs/}
+		Mel-frequency Cepstrum  is a convenient spectral representation of a sound because itd scale is based on the human hearing perception.
 
 	\subsection{Implementation}
 		We used the librabry LibROSA, which appears in many works related to sound classification such as K. Pizcack's \cite{cite2}.\\
