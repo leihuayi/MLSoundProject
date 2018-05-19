@@ -4,6 +4,7 @@
 \usepackage{cite}
 \usepackage{url}
 \usepackage{graphicx}
+\usepackage{float}
 
 \title{Mid-Term Paper : \\Freesound General-Purpose Audio Tagging Challenge}
 
@@ -73,7 +74,7 @@ Tsinghua University\\
 
 	\subsection{Dataset analysis}
 		We first plotted the distribution of samples per label \ref{fig:category_distribution}.
-		\begin{figure}
+		\begin{figure}[H]
 		  \includegraphics[width=\linewidth]{category_distribution.png}
 		  \caption{Distribution of samples per category}
 		  \label{fig:category_distribution}
@@ -93,9 +94,13 @@ Tsinghua University\\
 		\end{itemize}
 
 
-		\begin{figure}
+		\begin{figure}[H]
 		  \includegraphics[width=\linewidth]{waveplot.png}
+	  	\end{figure}
+	  	\begin{figure}[H]
 		  \includegraphics[width=\linewidth]{spectrogram.png}
+	  	\end{figure}
+	  	\begin{figure}[H]
 		  \includegraphics[width=\linewidth]{logspectrogram.png}
 		  \caption{Useful tools for analysis sounds provided by Librosa}
 		  \label{fig:graphs}
@@ -114,13 +119,19 @@ Tsinghua University\\
 
 	\subsection{Implementation}
 		We used the librabry LibROSA, which appears in many works related to sound classification such as K. Pizcack's \cite{cite2}.\\
+		This makes it extremely easy to extract the features which we will use for our classification problem.
 
-		Explain why not only use mfcc ?
+		\begin{enumerate}
+			\item First, we get the \verb+.wav+ file in a raw format and its sample rate using \verb+librosa.load+. We use the parameter \verb+res_type='kaiser_fast+ which makes loading faster.
+			\item We extract each feature by applying the dedicated Librosa functions on the raw sample and passing as parameter its sampling rate.
+		\end{enumerate}
+		
 		\newline
-		Here are some examples of the output of MFCC using Librosa :
-		\begin{figure}
+		Here are some examples of the output of MFCC using Librosa \ref{mfccgraph}.
+		\begin{figure}[H]
 		  \includegraphics[width=\linewidth]{mfcc.png}
 		  \caption{Mel Frequency Cepstral Coefficients}
+		  \label{fig:mfccgraph}
 		\end{figure}
 	
 \section{A Simple Neural Network}
@@ -132,7 +143,40 @@ Tsinghua University\\
 		After some reflection, a good range of algorithms being able to classifiy such complex data appear to be \textbf{Neural Networks}. Few papers in our proposal, like Zhang et. al.\cite{cite6}, mentionned this technique as it is very novel and most papers surveyed dated back to before 2014. However we could find many recent works on the net confirming this technique was effective for environment sound classification.\\
 		We first tried to make a simple Neural Network and test it on our extracted feature data.\\
 
-		We used the Tensorflow\footnote{\url{http://www.tensorflow.org}} machine learning framework to create the Neural Network and ran it on a NV6 Microsoft Azure Data Science Virtual Machine.
+		We used the Tensorflow\footnote{\url{http://www.tensorflow.org}} machine learning framework to create the Neural Network and ran it first on our local machines using a reduced sample of data, then on a NV6 Microsoft Azure Data Science Virtual Machine.
+
+		\subsection{Implementation details}
+			Here are the steps we followed in our code.
+
+			\begin{enumerate}
+				\item We create a dictionary for the pairing label name - label id, for instance \verb+{'Applause': 0, 'Bass_drum': 1, ...}+.
+				\item We extract the features from the training audio files. This gives us three outputs :
+					\begin{itemize}
+						\item \verb+tr_features+ : matrix of features info size (num\_train\_samples x 4), each line contains [mfccs,chroma,mel,contrast,tonnetz] for each sample.
+						\item \verb+tr_labels+ : array size num\_train\_samples containing the label id of each sample.
+						\item \verb+tr_verified+ : array size num\_train\_samples containing a boolean true of the sample is verified or false if it isn\'t. We currently don't use it in our code, but we implemented it in case we wanted to do statistics to check if verified results give us better score.
+					\end{itemize}
+				\item We create a num\_train\_samples x num\_labels matrix where element (i,j) = 1 if sample i has label j and 0 otherwise. We assign this matrix to \verb+tr_labels+, as the Tensorflow neural network need inputs of this format in order to work
+				\item We extract the features from the test dataset. This gives us two outputs :
+					\begin{itemize}
+						\item \verb+ts_features+ : matrix of features info size (num\_test\_samples x 4), each line contains [mfccs,chroma,mel,contrast,tonnetz] for each sample.
+						\item \verb+ts_name_list+ : array size num\_test\_samples containing the names of the files processed in order, so as to build the submission file (the neural network gives and output format \verb+id_sammple, id_label+ so we need to keep in memory the name of id\_sample).
+					\end{itemize}
+				\item We launch a simple neural network using the data \verb+tr_features, tr_labels, ts_features+ . We chose the following parameters for the neural network :
+					\begin{itemize}
+						\item 2 \textbf{Hidden Layers}, the first one with tanh activation function, the second with sigmoid
+						\item \textbf{Learning rate} of 0.01
+						\item Entropy \textbf{cost function}
+						\item Gradien descent \textbf{optimization}
+					\end{itemize}
+					And started launching it for 50 training epochs. If this ran well, we would then use the cost function as condition for keeping iterating epochs.\\
+					We chose the number of hidden layers, the activation functions and the learning rate based on our experience of the Neural Network Playground\footnote{\url{http://playground.tensorflow.org/}} of the previous homework.\\
+					As for the cost function, our choice was quite arbitrary. We could have use the squared error as seen in class, but many Tensorflow Neural Networks on the net used cross-entropy so we decided to use the latter. Finally, we chose gradient descend optimization as it was the method we saw in class.
+			\end{enumerate}
+
+
+		\subsection{Problems encountered}
+
 
 \section{Future Work}
 	We will try to incrementally complexify the structure of out Neural Network. We will first use a Convolutional Neural Network, as presented in Zhang et. al.\'s work\cite{cite6}. Since we are processing an audio signal, a 1-dimension CNN should be enough, but we can try using 2D CNN if the results are not concluant. We will then try to combine different CNNs to get more precise results if we have time.

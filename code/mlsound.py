@@ -40,16 +40,16 @@ def main():
     tr_features, tr_labels, tr_verified =  features.parse_audio_files_train(TRAIN_AUDIO_PATH,TRAIN_CSV,dictionary)  
     # print a log message for status update
     utils.write_log_msg("processed {0} files of training data...".format(len(tr_features)))  
+        # print a log message for status update
+    utils.write_log_msg("transforming labels of the training data...")  
+    # dunno what is going on here.
+    tr_labels = features.one_hot_encode(tr_labels)
     # print a log message for status update
     utils.write_log_msg("extracting features of prediction data...")  
     # call the feature extraction module to get audio features
     ts_features, ts_name_list = features.parse_audio_files_predict(TEST_AUDIO_PATH)  
     # print a log message for status update
     utils.write_log_msg("processed {0} files of prediction data...".format(len(ts_features)))  
-    # print a log message for status update
-    utils.write_log_msg("transforming labels of the training data...")  
-    # dunno what is going on here.
-    tr_labels = features.one_hot_encode(tr_labels)
     # print a log message for status update
     utils.write_log_msg("starting multi-layer neural network training...")
     # use the above extracted features for the training of the model
