@@ -34,6 +34,7 @@ class ThreadWithReturnValue(Thread):
     def join(self):
         Thread.join(self)
         return self._return
+
 #***********************************************************************************************#
 #                                                                                               #
 #   Module:                                                                                     #
