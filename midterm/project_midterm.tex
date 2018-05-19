@@ -110,7 +110,38 @@ Tsinghua University\\
 		Usually, in sound analysis, the raw samples are very complex and it is difficult to get valuable information directly from them, especially if they contain noise.
 		This is why we won't use the raw samples but extract some features from the sample which will, in contrary, give significant information that will help us make the classification.
 
+\section{Feature Extraction}
+    In machine learning, pattern recognition and image processing, feature extraction is a process to extracting a subset of features to be used for training. Feature extraction can be carried out for any number of reasons some of which are (but not limited to), to reduce the amount of resources required to describe large set of data, remove redundancy, get best set of features etc.\\\\
+    In our case with audio data we use feature extraction to get different audio related features that can be used to train our model. Simply using time-frequency series as an input for learning is not optimal and hence we need some better approach to get otpimal features. This brings us to Mel Frequency Cepstral Coefficient (MFCC). Another reason for this preprocessing on audio data is because we want to saturate the actual sound/intended sound from any auxilary sounds present in the audio files. Feature extraction also helps us minimize effects of background noise etc.\\\\
+    So what is MFCC? in the next section we will discuss mfcc feature extraction first in theory then how we have implemented it.
+	\subsection{Mel Frequency Cepstal Coefficients}
+		Mel Frequency Cepstral Coefficents (MFCCs) are a feature widely used in automatic speech and speaker recognition. They were introduced by Davis and Mermelstein in the 1980's, and have been state-of-the-art ever since. Prior to the introduction of MFCCs, Linear Prediction Coefficients (LPCs) and Linear Prediction Cepstral Coefficients (LPCCs) and were the main feature type for automatic speech recognition (ASR), especially with HMM classifiers.\\\\
+		In the next section we will briefly look at the steps involved in extracting mfcc features.
+%		Why use feature extraction ? Use mathematics \url{http://practicalcryptography.com/miscellaneous/machine-learning/guide-mel-frequency-cepstral-coefficients-mfccs/}
+	\subsection{Mel Frequency - Extraction Process}
+	Typical steps involved with extracting mfcc features of an audio signal are as follows:
+    \begin{itemize}
+        \item Frame the signal into short frames
+        \item For each frame calculate the periodogram estimates of the power spectrum
+        \item Apply the mel filterbank to the power spectra, sum the energy in each filter.
+        \item Take the logarithm of all filterbank energies.
+        \item Take the DCT of the log filterbank energies.
+        \item Keep DCT coefficients 2-13, discard the rest.
+    \end{itemize}
+    \subsection{Extraction Process - Theory}
+	In this section we will look in detail at the theory behind each of the step invovled in mfcc extraction process. We will see some fundamental mathematics involved with each step.
+	\subsection{Implementation}
+		We used the librabry LibROSA, which appears in many works related to sound classification such as K. Pizcack's \cite{cite2}.\\
 
+		Explain why not only use mfcc ?
+		\newline
+		Here are some examples of the output of MFCC using Librosa :
+		\begin{figure}
+		  \includegraphics[width=\linewidth]{mfcc.png}
+		  \caption{Mel Frequency Cepstral Coefficients}
+		\end{figure}
+
+\begin{comment}
 \section{Feature Extraction}
 
 	\subsection{Theory}
@@ -125,15 +156,8 @@ Tsinghua University\\
 			\item First, we get the \verb+.wav+ file in a raw format and its sample rate using \verb+librosa.load+. We use the parameter \verb+res_type='kaiser_fast+ which makes loading faster.
 			\item We extract each feature by applying the dedicated Librosa functions on the raw sample and passing as parameter its sampling rate.
 		\end{enumerate}
-		
-		\newline
-		Here are some examples of the output of MFCC using Librosa \ref{mfccgraph}.
-		\begin{figure}[H]
-		  \includegraphics[width=\linewidth]{mfcc.png}
-		  \caption{Mel Frequency Cepstral Coefficients}
-		  \label{fig:mfccgraph}
-		\end{figure}
-	
+\end{comment}
+
 \section{A Simple Neural Network}
 		In our project proposal, we first proposed using Hidden Markov Model algorithm to classifiy the sounds.\\
 		This choice was made with very little knowledge of this technique, because a few papers using it obtained good results \cite{cite3} \cite{cite4}. However after extensive research of the inner functionning of HMMs, we understood why many other papers of our survey disapproved using this algorithm \cite{cite5} \cite{cite6}. HMM's idea is to start from a known final state, and try to guess which sequence of actions was followed in order to get to that result. This path, or sequence of actions, is unknown hence the adjective \emph{hidden}. HMM are therefore very useful in cases there is an actual path to find, for instance in board games or speech recognition : in the latter case, the path consists of \emph{each word} spoken in the sentence.\\
