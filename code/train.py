@@ -24,7 +24,7 @@ def multilayer_neural_network(tr_features, tr_labels, ts_features, n_classes, tr
     n_hidden_units_one = 280 
     n_hidden_units_two = 300
     sd = 1 / np.sqrt(n_dim)
-    learning_rate = 0.01
+    learning_rate = 0.001
     
     X = tf.placeholder(tf.float32,[None,n_dim])
     Y = tf.placeholder(tf.float32,[None,n_classes])
