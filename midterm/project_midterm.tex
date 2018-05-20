@@ -227,8 +227,8 @@ Tsinghua University\\
 					\end{itemize}
 					And started launching it for 1000 training epochs. If this ran well, we would then use the cost function as condition for keeping iterating epochs.\\
 					\newline
-					We chose the number of hidden layers, the activation functions and the learning rate based on our experience of the Neural Network Playground\footnote{\url{http://playground.tensorflow.org/}} of the previous homework.\\
-					\newline
+					We chose the number of hidden layers and the activation functions based on our experience of the Neural Network Playground\footnote{\url{http://playground.tensorflow.org/}} of the previous homework.\\\\
+					The learning rate was adjusted throughout our trials. We first used a regular 0.01 learning rate, but we discovered that this learning rate made the program crash for a big number of samples. We incrementally reduced it, and chose to use stair-cased exponential decay. This solved the issue up to 1000 samples.\\\\
 					As for the cost function, our choice was quite arbitrary. We could have use the squared error as seen in class, but many Tensorflow Neural Networks on the net used cross-entropy so we decided to use the latter. Finally, we chose gradient descend optimization as it was the method we saw in class.
 			\end{enumerate}
 
@@ -236,7 +236,7 @@ Tsinghua University\\
         \subsection{Problems encountered}
         The first major problem we faced during our testing and trial was that tensorflow's learning process doesn't throw expection in case of any error, it simply closes the session and doesn't output any further results.\\
         \newline
-        The second problem was to train on complete data, since the tesnor didn't throw any exceptions, having a high learning rate would increase cost instead of decreasing it and after couple of iterations tensorflow just stopped outputting results. We have been able to train on a subset of 1000 files but we are still working on figuring out how to train correctly on all 9000+ files.
+        The second problem was to train on complete data, since the tensor didn't throw any exceptions, having a high learning rate would increase cost instead of decreasing it and after couple of iterations tensorflow just stopped outputting results. We have been able to train on a subset of 1000 files but we are still working on figuring out how to train correctly on all 9000+ files.
         
         \subsection{Results}
         Based on previously discussed work we made our first submission to kaggle competition. The public f-score we got is 0.166. Although this is very disappointing result but this is to be expected if we take into account that we only used about 1/9 th part of the data to train our model. (Only 1000 audio files were used to train the model instead of all 9000+ files).\\
