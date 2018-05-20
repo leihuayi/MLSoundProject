@@ -7,6 +7,8 @@
 \usepackage{float}
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{pgfplots}
+\usepackage{verbatim}
 
 \title{Mid-Term Paper : \\Freesound General-Purpose Audio Tagging Challenge}
 
@@ -130,7 +132,7 @@ Tsinghua University\\
         \item Keep DCT coefficients 2-13, discard the rest.
     \end{enumerate}
     \subsection{Extraction Process - Theory}
-	In this section we look in detail at the theory behind each of the step involved in mfcc extraction process.
+	In this section we look in detail at the theory behind each of the step involved in mfcc extraction process \cite{cite7}.
 	\begin{enumerate}
 		\item An audio signal is constantly changing, so to simplify things we assume that on short time scales the audio signal doesn't change much (when we say it doesn't change, we mean statistically i.e. statistically stationary, obviously the samples are constantly changing on even short time scales). This is why we frame the signal into 20-40ms frames. If the frame is much shorter we don't have enough samples to get a reliable spectral estimate, if it is longer the signal changes too much throughout the frame. 25ms is standard. In out case, we have a sample rate of 44.1 kHz which gives $N = 0.025 \times 44100 = 1102.5$ samples in case of 25ms sampling.\\\\
 			The next steps are applied to every single frame, one set of 12 MFCC coefficients is extracted for each frame.\\ We call our time domain signal $s(n)$. Once it is framed we have $s_i(n)$ where n ranges over 1 to $N$ samples and $i$ ranges over the number of frames. When we calculate the complex DFT, we get $S_i(k)$ - where the $i$ denotes the frame number corresponding to the time-domain frame. $P_i(k)$ is then the power spectrum of frame $i$.
@@ -225,6 +227,15 @@ Tsinghua University\\
 
 
 		\subsection{Problems encountered}
+
+\begin{comment}
+	Display graph cost with 
+	\begin{tikzpicture}
+		\begin{axis}[height=150, width=400, ylabel=Cost, xlabel=Num of epochs]
+			\addplot[thick, teal] table [x=epoch, y=cost, col sep=comma] {../data/cost_history.csv};
+		\end{axis}
+	\end{tikzpicture}
+\end{comment}
 
 
 \section{Future Work}
