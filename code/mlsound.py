@@ -60,5 +60,6 @@ def main():
     utils.print_csv_file(predict_multilayer_nn, ts_name_list, dictionary, OUTPUT_CSV)
     # print a log message for status update
     utils.write_log_msg("done...")
+
 # call the main program.
 main()

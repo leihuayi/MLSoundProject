@@ -4,7 +4,6 @@
 #                                                                                               #
 #-----------------------------------------------------------------------------------------------#
 import os
-import glob
 import librosa
 import utils
 import numpy as np
@@ -66,6 +65,7 @@ def p_train_thread(audio_path, label_dictionary, data):
                 verified = np.append(verified, False)
     # return the extracted features to the calling program
     return features, labels, verified
+
 #***********************************************************************************************#
 #                                                                                               #
 #   Module:                                                                                     #

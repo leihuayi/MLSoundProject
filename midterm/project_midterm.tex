@@ -5,6 +5,8 @@
 \usepackage{url}
 \usepackage{graphicx}
 \usepackage{float}
+\usepackage{amsmath}
+\usepackage{amssymb}
 
 \title{Mid-Term Paper : \\Freesound General-Purpose Audio Tagging Challenge}
 
@@ -110,12 +112,61 @@ Tsinghua University\\
 		Usually, in sound analysis, the raw samples are very complex and it is difficult to get valuable information directly from them, especially if they contain noise.
 		This is why we won't use the raw samples but extract some features from the sample which will, in contrary, give significant information that will help us make the classification.
 
-
 \section{Feature Extraction}
+    In machine learning, pattern recognition and image processing, feature extraction is a process to extracting a subset of features to be used for training. Feature extraction can be carried out for any number of reasons some of which are (but not limited to), to reduce the amount of resources required to describe large set of data, remove redundancy, get best set of features etc.\\\\
+    In our case with audio data we use feature extraction to get different audio related features that can be used to train our model. Simply using time-frequency series as an input for learning is not optimal and hence we need some better approach to get otpimal features. This brings us to Mel Frequency Cepstral Coefficient (MFCC). Another reason for this preprocessing on audio data is because we want to saturate the actual sound/intended sound from any auxilary sounds present in the audio files. Feature extraction also helps us minimize effects of background noise etc.\\\\
+	\subsection{Mel Frequency Cepstal Coefficients}
+		Mel Frequency Cepstral Coefficents (MFCCs) are a feature widely used in automatic speech and speaker recognition. They were introduced by Davis and Mermelstein in the 1980's, and have been state-of-the-art ever since. Prior to the introduction of MFCCs, Linear Prediction Coefficients (LPCs) and Linear Prediction Cepstral Coefficients (LPCCs) and were the main feature type for automatic speech recognition (ASR), especially with HMM classifiers.\\\\
+		In the next section we will briefly look at the steps involved in extracting mfcc features.
+%		Why use feature extraction ? Use mathematics \url{http://practicalcryptography.com/miscellaneous/machine-learning/guide-mel-frequency-cepstral-coefficients-mfccs/}
+	\subsection{Mel Frequency - Extraction Process}
+	Typical steps involved with extracting mfcc features of an audio signal are as follows:
+    \begin{enumerate}
+        \item Frame the signal into short frames
+        \item For each frame calculate the periodogram estimates of the power spectrum
+        \item Apply the mel filterbank to the power spectra, sum the energy in each filter.
+        \item Take the logarithm of all filterbank energies.
+        \item Take the DCT of the log filterbank energies.
+        \item Keep DCT coefficients 2-13, discard the rest.
+    \end{enumerate}
+    \subsection{Extraction Process - Theory}
+	In this section we look in detail at the theory behind each of the step involved in mfcc extraction process.
+	\begin{enumerate}
+		\item An audio signal is constantly changing, so to simplify things we assume that on short time scales the audio signal doesn't change much (when we say it doesn't change, we mean statistically i.e. statistically stationary, obviously the samples are constantly changing on even short time scales). This is why we frame the signal into 20-40ms frames. If the frame is much shorter we don't have enough samples to get a reliable spectral estimate, if it is longer the signal changes too much throughout the frame. 25ms is standard. In out case, we have a sample rate of 44.1 kHz which gives $N = 0.025 \times 44100 = 1102.5$ samples in case of 25ms sampling.\\\\
+			The next steps are applied to every single frame, one set of 12 MFCC coefficients is extracted for each frame.\\ We call our time domain signal $s(n)$. Once it is framed we have $s_i(n)$ where n ranges over 1 to $N$ samples and $i$ ranges over the number of frames. When we calculate the complex DFT, we get $S_i(k)$ - where the $i$ denotes the frame number corresponding to the time-domain frame. $P_i(k)$ is then the power spectrum of frame $i$.
+		\item We calculate the power spectrum of each frame, to modelize the way human ear transmits information to the brain.\\
+		We first make a Discret Fourier Transform of the frame:\\
+		$$S_i(k) = \displaystyle\sum_{n=1}^N s_i(n)h(n)e^{j2\pi kn /N}, \quad 1 \leq k \leq K$$
+		where $h(n)$ is an $N$ sample long analysis window (e.g. hamming window), and $K$ is the length of the DFT.\\
+		Then we get periodogram-based power spectral estimate for the speech frame $S_i(n)$ by taking the absolute value of the complex fourier transform and square the result:\\
+		$$P_i(k) = \frac{1}{N} |S_i(k)|^2$$
 
-	\subsection{Theory}
-		Why use feature extraction ? Use mathematics \url{http://practicalcryptography.com/miscellaneous/machine-learning/guide-mel-frequency-cepstral-coefficients-mfccs/}
-		Mel-frequency Cepstrum  is a convenient spectral representation of a sound because itd scale is based on the human hearing perception.
+		\item We compute the Mel-spaced filterbank. This is a set of 20-40 (26 is standard) triangular filters that we apply to the periodogram power spectral estimate from step 2. Each vector is mostly zeros, but is non-zero for a certain section of the spectrum. \\
+		For instance, the first filterbank will start at the first point, reach its peak at the second point, then return to zero at the 3rd point. The second filterbank will start at the 2nd point, reach its max at the 3rd, then be zero at the 4th etc. A formula for calculating these is as follows:\\
+		\[H_m(k) =
+			\begin{cases}
+				0 \quad k < f(m-1) \\\\
+				\frac{k-f(m-1)}{f(m)-f(m-1)} \quad f(m-1) \leq k \leq f(m) \\\\
+				\frac{f(m+1)-k}{f(m+1)-f(m)} \quad f(m) \leq k \leq f(m+1) \\\\
+				0 \quad k > f(m+1) \\
+			\end{cases}
+		\]
+		where $M$ is the number of filters we want, and $f()$ is the list of $M+2$ Mel-spaced frequencies.\\
+		We convert frequency from Hz to Mel using the formula :\\
+		$$ M(f) = 1125 ln(1 + f/700) $$
+		Then, to calculate filterbank energies we multiply each filterbank with the power spectrum, then add up the coefficents as described in the following figure \ref{fig:melfilterbank}:
+		\begin{figure}[H]
+		  \includegraphics[width=\linewidth]{mel_filterbank_example}
+		  \caption{Plot of Mel Filterbank and windowed power spectrum}
+		  \label{fig:melfilterbank}
+	  	\end{figure}
+
+	  	\item Take the log of each of the 26 energies from step 3. This leaves us with 26 log filterbank energies.
+
+		\item Take the Discrete Cosine Transform (DCT) of the 26 log filterbank energies to give 26 cepstral coefficents. For ASR, only the lower 12-13 of the 26 coefficients are kept.
+
+	\end{enumerate}
+	The resulting features (12 numbers for each frame) are called Mel Frequency Cepstral Coefficients.
 
 	\subsection{Implementation}
 		We used the librabry LibROSA, which appears in many works related to sound classification such as K. Pizcack's \cite{cite2}.\\
@@ -131,7 +182,7 @@ Tsinghua University\\
 		  \caption{Mel Frequency Cepstral Coefficients}
 		  \label{fig:mfccgraph}
 		\end{figure}
-	
+
 \section{A Simple Neural Network}
 		In our project proposal, we first proposed using Hidden Markov Model algorithm to classifiy the sounds.\\
 		This choice was made with very little knowledge of this technique, because a few papers using it obtained good results \cite{cite3} \cite{cite4}. However after extensive research of the inner functionning of HMMs, we understood why many other papers of our survey disapproved using this algorithm \cite{cite5} \cite{cite6}. HMM's idea is to start from a known final state, and try to guess which sequence of actions was followed in order to get to that result. This path, or sequence of actions, is unknown hence the adjective \emph{hidden}. HMM are therefore very useful in cases there is an actual path to find, for instance in board games or speech recognition : in the latter case, the path consists of \emph{each word} spoken in the sentence.\\
@@ -152,7 +203,7 @@ Tsinghua University\\
 					\begin{itemize}
 						\item \verb+tr_features+ : matrix of features info size (num\_train\_samples x 4), each line contains [mfccs,chroma,mel,contrast,tonnetz] for each sample.
 						\item \verb+tr_labels+ : array size num\_train\_samples containing the label id of each sample.
-						\item \verb+tr_verified+ : array size num\_train\_samples containing a boolean true of the sample is verified or false if it isn\'t. We currently don't use it in our code, but we implemented it in case we wanted to do statistics to check if verified results give us better score.
+						\item \verb+tr_verified+ : array size num\_train\_samples containing a boolean true of the sample is verified or false if it isn't. We currently don't use it in our code, but we implemented it in case we wanted to do statistics to check if verified results give us better score.
 					\end{itemize}
 				\item We create a num\_train\_samples x num\_labels matrix where element (i,j) = 1 if sample i has label j and 0 otherwise. We assign this matrix to \verb+tr_labels+, as the Tensorflow neural network need inputs of this format in order to work
 				\item We extract the features from the test dataset. This gives us two outputs :
@@ -177,7 +228,7 @@ Tsinghua University\\
 
 
 \section{Future Work}
-	We will try to incrementally complexify the structure of out Neural Network. We will first use a Convolutional Neural Network, as presented in Zhang et. al.\'s work\cite{cite6}. Since we are processing an audio signal, a 1-dimension CNN should be enough, but we can try using 2D CNN if the results are not concluant. We will then try to combine different CNNs to get more precise results if we have time.
+	We will try to incrementally complexify the structure of out Neural Network. We will first use a Convolutional Neural Network, as presented in Zhang et. al.'s work\cite{cite6}. Since we are processing an audio signal, a 1-dimension CNN should be enough, but we can try using 2D CNN if the results are not concluant. We will then try to combine different CNNs to get more precise results if we have time.
 
 \subsubsection*{Acknowledgments}
 
