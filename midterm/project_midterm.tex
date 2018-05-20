@@ -120,7 +120,6 @@ Tsinghua University\\
 	\subsection{Mel Frequency Cepstal Coefficients}
 		Mel Frequency Cepstral Coefficents (MFCCs) are a feature widely used in automatic speech and speaker recognition. They were introduced by Davis and Mermelstein in the 1980's, and have been state-of-the-art ever since. Prior to the introduction of MFCCs, Linear Prediction Coefficients (LPCs) and Linear Prediction Cepstral Coefficients (LPCCs) and were the main feature type for automatic speech recognition (ASR), especially with HMM classifiers.\\\\
 		In the next section we will briefly look at the steps involved in extracting mfcc features.
-%		Why use feature extraction ? Use mathematics \url{http://practicalcryptography.com/miscellaneous/machine-learning/guide-mel-frequency-cepstral-coefficients-mfccs/}
 	\subsection{Mel Frequency - Extraction Process}
 	Typical steps involved with extracting mfcc features of an audio signal are as follows:
     \begin{enumerate}
@@ -135,15 +134,17 @@ Tsinghua University\\
 	In this section we look in detail at the theory behind each of the step involved in mfcc extraction process \cite{cite7}.
 	\begin{enumerate}
 		\item An audio signal is constantly changing, so to simplify things we assume that on short time scales the audio signal doesn't change much (when we say it doesn't change, we mean statistically i.e. statistically stationary, obviously the samples are constantly changing on even short time scales). This is why we frame the signal into 20-40ms frames. If the frame is much shorter we don't have enough samples to get a reliable spectral estimate, if it is longer the signal changes too much throughout the frame. 25ms is standard. In out case, we have a sample rate of 44.1 kHz which gives $N = 0.025 \times 44100 = 1102.5$ samples in case of 25ms sampling.\\\\
-			The next steps are applied to every single frame, one set of 12 MFCC coefficients is extracted for each frame.\\ We call our time domain signal $s(n)$. Once it is framed we have $s_i(n)$ where n ranges over 1 to $N$ samples and $i$ ranges over the number of frames. When we calculate the complex DFT, we get $S_i(k)$ - where the $i$ denotes the frame number corresponding to the time-domain frame. $P_i(k)$ is then the power spectrum of frame $i$.
-		\item We calculate the power spectrum of each frame, to modelize the way human ear transmits information to the brain.\\
+        The next steps are applied to every single frame, one set of 12 MFCC coefficients is extracted for each frame.\\\\ 
+        We call our time domain signal $s(n)$. Once it is framed we have $s_i(n)$ where n ranges over 1 to $N$ samples and $i$ ranges over the number of frames. When we calculate the complex DFT, we get $S_i(k)$ - where the $i$ denotes the frame number corresponding to the time-domain frame. $P_i(k)$ is then the power spectrum of frame $i$.\\
+        
+		\item We calculate the power spectrum of each frame, to modelize the way human ear transmits information to the brain.\\\\
 		We first make a Discret Fourier Transform of the frame:\\
 		$$S_i(k) = \displaystyle\sum_{n=1}^N s_i(n)h(n)e^{j2\pi kn /N}, \quad 1 \leq k \leq K$$
 		where $h(n)$ is an $N$ sample long analysis window (e.g. hamming window), and $K$ is the length of the DFT.\\
 		Then we get periodogram-based power spectral estimate for the speech frame $S_i(n)$ by taking the absolute value of the complex fourier transform and square the result:\\
 		$$P_i(k) = \frac{1}{N} |S_i(k)|^2$$
 
-		\item We compute the Mel-spaced filterbank. This is a set of 20-40 (26 is standard) triangular filters that we apply to the periodogram power spectral estimate from step 2. Each vector is mostly zeros, but is non-zero for a certain section of the spectrum. \\
+		\item We compute the Mel-spaced filterbank. This is a set of 20-40 (26 is standard) triangular filters that we apply to the periodogram power spectral estimate from step 2. Each vector is mostly zeros, but is non-zero for a certain section of the spectrum. \\\\
 		For instance, the first filterbank will start at the first point, reach its peak at the second point, then return to zero at the 3rd point. The second filterbank will start at the 2nd point, reach its max at the 3rd, then be zero at the 4th etc. A formula for calculating these is as follows:\\
 		\[H_m(k) =
 			\begin{cases}
@@ -184,16 +185,20 @@ Tsinghua University\\
 		  \caption{Mel Frequency Cepstral Coefficients}
 		  \label{fig:mfccgraph}
 		\end{figure}
+        
+        Since we had huge amount of data approximately 18000+ audio files, the process of feature extraction took 5-6 hours to complete, in order to handle this issue we implemented multi-threaded environment to extract features. We assign each thread a workload of 500 files and fire them all up in parallel. Through this approach we were successful in bringing down the extraction time from 6 hours to 1 hour approx.
 
 \section{A Simple Neural Network}
 		In our project proposal, we first proposed using Hidden Markov Model algorithm to classifiy the sounds.\\
+		\newline
 		This choice was made with very little knowledge of this technique, because a few papers using it obtained good results \cite{cite3} \cite{cite4}. However after extensive research of the inner functionning of HMMs, we understood why many other papers of our survey disapproved using this algorithm \cite{cite5} \cite{cite6}. HMM's idea is to start from a known final state, and try to guess which sequence of actions was followed in order to get to that result. This path, or sequence of actions, is unknown hence the adjective \emph{hidden}. HMM are therefore very useful in cases there is an actual path to find, for instance in board games or speech recognition : in the latter case, the path consists of \emph{each word} spoken in the sentence.\\
 		\newline
 		However, in our case, we don't want to extract and analyse every little part that consists our general sound input, we only want to classify it. Therefore HMM is not appropriate for making this kind of task on our data.\\
 		\newline
 		After some reflection, a good range of algorithms being able to classifiy such complex data appear to be \textbf{Neural Networks}. Few papers in our proposal, like Zhang et. al.\cite{cite6}, mentionned this technique as it is very novel and most papers surveyed dated back to before 2014. However we could find many recent works on the net confirming this technique was effective for environment sound classification.\\
+		\newline
 		We first tried to make a simple Neural Network and test it on our extracted feature data.\\
-
+        \newline
 		We used the Tensorflow\footnote{\url{http://www.tensorflow.org}} machine learning framework to create the Neural Network and ran it first on our local machines using a reduced sample of data, then on a NV6 Microsoft Azure Data Science Virtual Machine.
 
 		\subsection{Implementation details}
@@ -215,31 +220,39 @@ Tsinghua University\\
 					\end{itemize}
 				\item We launch a simple neural network using the data \verb+tr_features, tr_labels, ts_features+ . We chose the following parameters for the neural network :
 					\begin{itemize}
-						\item 2 \textbf{Hidden Layers}, the first one with tanh activation function, the second with sigmoid
-						\item \textbf{Learning rate} of 0.01
+						\item 2 \textbf{Hidden Layers}, the first one with tanh activation function and 280 hidden units, the second with sigmoid and 300 hidden units.
+						\item \textbf{Learning rate} of 0.001 with stair-cased exponential decay.
 						\item Entropy \textbf{cost function}
 						\item Gradien descent \textbf{optimization}
 					\end{itemize}
-					And started launching it for 50 training epochs. If this ran well, we would then use the cost function as condition for keeping iterating epochs.\\
+					And started launching it for 1000 training epochs. If this ran well, we would then use the cost function as condition for keeping iterating epochs.\\
+					\newline
 					We chose the number of hidden layers, the activation functions and the learning rate based on our experience of the Neural Network Playground\footnote{\url{http://playground.tensorflow.org/}} of the previous homework.\\
+					\newline
 					As for the cost function, our choice was quite arbitrary. We could have use the squared error as seen in class, but many Tensorflow Neural Networks on the net used cross-entropy so we decided to use the latter. Finally, we chose gradient descend optimization as it was the method we saw in class.
 			\end{enumerate}
 
 
-		\subsection{Problems encountered}
+        \subsection{Problems encountered}
+        The first major problem we faced during our testing and trial was that tensorflow's learning process doesn't throw expection in case of any error, it simply closes the session and doesn't output any further results.\\
+        \newline
+        The second problem was to train on complete data, since the tesnor didn't throw any exceptions, having a high learning rate would increase cost instead of decreasing it and after couple of iterations tensorflow just stopped outputting results. We have been able to train on a subset of 1000 files but we are still working on figuring out how to train correctly on all 9000+ files.
+        
+        \subsection{Results}
+        Based on previously discussed work we made our first submission to kaggle competition. The public f-score we got is 0.166. Although this is very disappointing result but this is to be expected if we take into account that we only used about 1/9 th part of the data to train our model. (Only 1000 audio files were used to train the model instead of all 9000+ files).\\
+        \newline
+        The cost in each epoch obtained during the training process is graphed as follow:\\
 
-\begin{comment}
-	Display graph cost with 
-	\begin{tikzpicture}
-		\begin{axis}[height=150, width=400, ylabel=Cost, xlabel=Num of epochs]
-			\addplot[thick, teal] table [x=epoch, y=cost, col sep=comma] {../data/cost_history.csv};
-		\end{axis}
-	\end{tikzpicture}
-\end{comment}
-
+        \begin{tikzpicture}
+            \begin{axis}[height=150, width=400, ylabel=Cost, xlabel=Num of epochs]
+                \addplot[thick, teal] table [x=epoch, y=cost, col sep=comma] {cost_history.csv};
+            \end{axis}
+        \end{tikzpicture}
 
 \section{Future Work}
-	We will try to incrementally complexify the structure of out Neural Network. We will first use a Convolutional Neural Network, as presented in Zhang et. al.'s work\cite{cite6}. Since we are processing an audio signal, a 1-dimension CNN should be enough, but we can try using 2D CNN if the results are not concluant. We will then try to combine different CNNs to get more precise results if we have time.
+	For future work we would like to increase our models accuracy by resolving issues of training on complete dataset. Once we have achieved this then we would further like to incrementally complexify the structure of out Neural Network.\\
+	\newline
+    We will first use a Convolutional Neural Network, as presented in Zhang et. al.'s work\cite{cite6}. Since we are processing an audio signal, a 1-dimension CNN should be enough, but we can try using 2D CNN if the results are not concluant. We will then try to ensemble different CNNs to get more precise
 
 \subsubsection*{Acknowledgments}
 
