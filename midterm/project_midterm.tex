@@ -85,7 +85,7 @@ Tsinghua University\\
 		    \item The number of verified data varies over the labels
 		\end{itemize}
 
-		We can visualize the difference between the samples by using some useful tools from the python package for music and audio analysis LibROSA\footnote{\url{http://librosa.github.io/librosa/}}. We picked randomly 4 samples \emph{Oboe, Fireworks, Cello, Harmonica} and plot various graphs \ref{graphs} :
+		We can visualize the difference between the samples by using some useful tools from the python package for music and audio analysis LibROSA\footnote{\url{http://librosa.github.io/librosa/}}. We picked randomly 4 samples \emph{Oboe, Fireworks, Cello, Harmonica} and plot various graphs \ref{fig:graphs} :
 
 		\begin{itemize}
 		    \item The Waveplot
@@ -125,9 +125,7 @@ Tsinghua University\\
 			\item First, we get the \verb+.wav+ file in a raw format and its sample rate using \verb+librosa.load+. We use the parameter \verb+res_type='kaiser_fast+ which makes loading faster.
 			\item We extract each feature by applying the dedicated Librosa functions on the raw sample and passing as parameter its sampling rate.
 		\end{enumerate}
-		
-		\newline
-		Here are some examples of the output of MFCC using Librosa \ref{mfccgraph}.
+		Here are some examples of the output of MFCC using Librosa \ref{fig:mfccgraph}.
 		\begin{figure}[H]
 		  \includegraphics[width=\linewidth]{mfcc.png}
 		  \caption{Mel Frequency Cepstral Coefficients}
