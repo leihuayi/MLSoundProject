@@ -18,7 +18,7 @@ import utils
 #   features and selected options.                                                              #
 #                                                                                               #
 #***********************************************************************************************#
-def multilayer_neural_network(tr_features, tr_labels, ts_features, n_classes, training_epochs = 1000):
+def multilayer_neural_network(tr_features, tr_labels, ts_features, n_classes, training_epochs = 500):
     # initialize the beginning paramters.
     n_dim = tr_features.shape[1]
     n_hidden_units_one = 280 
