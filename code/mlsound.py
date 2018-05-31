@@ -40,9 +40,9 @@ def main():
     tr_features, tr_labels, tr_verified =  features.parse_audio_files_train(TRAIN_AUDIO_PATH,TRAIN_CSV,dictionary)  
     # print a log message for status update
     utils.write_log_msg("processed {0} files of training data...".format(len(tr_features)))  
-        # print a log message for status update
+    # print a log message for status update
     utils.write_log_msg("transforming labels of the training data...")  
-    # dunno what is going on here.
+    # Creates a matrix size num_samples x num_labels with (i,j) = 1(sample i has label j) 
     tr_labels = features.one_hot_encode(tr_labels)
     # print a log message for status update
     utils.write_log_msg("extracting features of prediction data...")  

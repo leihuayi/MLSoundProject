@@ -15,6 +15,7 @@ import pandas as pd
 #                                                                                               #
 #-----------------------------------------------------------------------------------------------#
 CHUNK_SIZE = 500
+FEATURE_SIZE = 40
 
 #***********************************************************************************************#
 #                                                                                               #
@@ -47,7 +48,7 @@ def extract_feature(file_name):
 #***********************************************************************************************#
 def p_train_thread(audio_path, label_dictionary, data):
     # initialize variables
-    features, labels, verified = np.empty((0,193)), np.empty(0), np.empty(0)    
+    features, labels, verified = np.empty((0,FEATURE_SIZE)), np.empty(0), np.empty(0)    
     # process this threads share of workload
     for i in range(data.shape[0]):
             # add a log message to be displayed after processing every 250 files.
@@ -55,9 +56,11 @@ def p_train_thread(audio_path, label_dictionary, data):
                 utils.write_log_msg("FEATURE_TRAIN - {0}...".format(i))
             line = data.iloc[i]
             fn = audio_path+line["fname"]
-            mfccs, chroma, mel, contrast,tonnetz = extract_feature(fn)
-            ext_features = np.hstack([mfccs,chroma,mel,contrast,tonnetz])
-            features = np.vstack([features,ext_features])
+
+            X, sample_rate = librosa.load(fn, res_type='kaiser_fast')
+            mfccs = np.mean(librosa.feature.mfcc(y=X, sr=sample_rate, n_mfcc=40).T,axis=0)
+            #ext_features = np.hstack([mfccs,chroma,mel,contrast,tonnetz])
+            features = np.vstack([features,mfccs])
             labels = np.append(labels, label_dictionary[line["label"]])
             if line["manually_verified"] == 1:
                 verified = np.append(verified, True)    
@@ -77,12 +80,15 @@ def p_train_thread(audio_path, label_dictionary, data):
 #***********************************************************************************************#
 def p_predict_thread(audio_path, name_list):
     # initialize variables
-    features = np.empty((0,193))
+    features = np.empty((0,FEATURE_SIZE))
     # traverse through the name list and process this threads workload
     for fname in name_list:
-        mfccs, chroma, mel, contrast,tonnetz = extract_feature(audio_path+fname)
-        ext_features = np.hstack([mfccs,chroma,mel,contrast,tonnetz])
-        features = np.vstack([features,ext_features])
+        X, sample_rate = librosa.load(audio_path+fname, res_type='kaiser_fast')
+        mfccs = np.mean(librosa.feature.mfcc(y=X, sr=sample_rate, n_mfcc=40).T,axis=0)
+
+        #mfccs, chroma, mel, contrast,tonnetz = extract_feature(audio_path+fname)
+        #ext_features = np.hstack([mfccs,chroma,mel,contrast,tonnetz])
+        features = np.vstack([features,mfccs])
         # add a log message to be displayed after processing every 250 files.
         if len(features)%250 == 0:
             utils.write_log_msg("FEATURE_PREDICT - {0}...".format(len(features)))
@@ -100,7 +106,7 @@ def p_predict_thread(audio_path, name_list):
 def parse_audio_files_predict(audio_path, file_ext="*.wav"):
     
     # initialize variables
-    features = np.empty((0,193))
+    features = np.empty((0,FEATURE_SIZE))
     
     # get the list of files in the audio folder
     name_list = os.listdir(audio_path)
@@ -126,6 +132,11 @@ def parse_audio_files_predict(audio_path, file_ext="*.wav"):
     for single_thread in thread_pool:
         ft = single_thread.join()
         features = np.vstack([features,ft])
+
+    # normalize data
+    mean = np.mean(features, axis=0)
+    std = np.std(features, axis=0)
+    features = (features - mean)/std
     
     # return the extracted features to the calling program
     return np.array(features), name_list
@@ -141,7 +152,7 @@ def parse_audio_files_predict(audio_path, file_ext="*.wav"):
 #***********************************************************************************************#
 def parse_audio_files_train(audio_path, train_csv_path, label_dictionary, file_ext="*.wav"):
     # initialize variables
-    features, labels, verified = np.empty((0,193)), np.empty(0), np.empty(0)    
+    features, labels, verified = np.empty((0,FEATURE_SIZE)), np.empty(0), np.empty(0)    
     
     # read audio files using pandas and split it into chunks of 'CHUNK_SIZE' files each
     data = pd.read_csv(train_csv_path, chunksize=CHUNK_SIZE)
@@ -166,6 +177,11 @@ def parse_audio_files_train(audio_path, train_csv_path, label_dictionary, file_e
         features = np.vstack([features,ft])
         labels = np.append(labels, lbl)
         verified = np.append(verified, stat)
+
+    # normalize data
+    mean = np.mean(features, axis=0)
+    std = np.std(features, axis=0)
+    features = (features - mean)/std
     
     # return the extracted features to the calling program
     return np.array(features), np.array(labels, dtype = np.int), np.array(verified, dtype=np.bool)
