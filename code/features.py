@@ -6,6 +6,8 @@
 import os
 import librosa
 import utils
+import json
+import pickle
 import numpy as np
 import pandas as pd
 
@@ -14,6 +16,13 @@ import pandas as pd
 #   Define global parameters to be used through out the program                                 #
 #                                                                                               #
 #-----------------------------------------------------------------------------------------------#
+TR_FEATURE_NPY = os.path.join(os.path.dirname(__file__),"../data/f1.npy")
+TR_LABEL_NPY = os.path.join(os.path.dirname(__file__),"../data/f2.npy")
+TR_VERIFY_NPY = os.path.join(os.path.dirname(__file__),"../data/f3.npy")
+TS_FEATURE_NPY = os.path.join(os.path.dirname(__file__),"../data/f4.npy")
+TS_F_NAME_NPY = os.path.join(os.path.dirname(__file__),"../data/f5.npy")
+LABEL_DICT_NPY = os.path.join(os.path.dirname(__file__),"../data/f6.txt")
+
 CHUNK_SIZE = 500
 
 #***********************************************************************************************#
@@ -127,8 +136,11 @@ def parse_audio_files_predict(audio_path, file_ext="*.wav"):
         ft = single_thread.join()
         features = np.vstack([features,ft])
     
+    # perform final touches to extracted arrays
+    features = np.array(features)
+    
     # return the extracted features to the calling program
-    return np.array(features), name_list
+    return features, name_list
 
 #***********************************************************************************************#
 #                                                                                               #
@@ -167,8 +179,13 @@ def parse_audio_files_train(audio_path, train_csv_path, label_dictionary, file_e
         labels = np.append(labels, lbl)
         verified = np.append(verified, stat)
     
+    # perform final touches to extracted arrays
+    features = np.array(features)
+    labels = one_hot_encode(np.array(labels, dtype = np.int))
+    verified = np.array(verified, dtype=np.bool)
+    
     # return the extracted features to the calling program
-    return np.array(features), np.array(labels, dtype = np.int), np.array(verified, dtype=np.bool)
+    return features, labels, verified
 
 #***********************************************************************************************#
 #                                                                                               #
@@ -185,3 +202,38 @@ def one_hot_encode(labels):
     one_hot_encode = np.zeros((n_labels,n_unique_labels))
     one_hot_encode[np.arange(n_labels), labels] = 1
     return one_hot_encode
+
+#***********************************************************************************************#
+#                                                                                               #
+#   Module:                                                                                     #
+#   read_features()                                                                             #
+#                                                                                               #
+#   Description:                                                                                #
+#   Program responsible for reading pre-made features files without any extraction.             #
+#                                                                                               #
+#***********************************************************************************************#
+def read_features():
+    tr_features = np.load(TR_FEATURE_NPY)
+    tr_labels = np.load(TR_LABEL_NPY)
+    ts_features = np.load(TS_FEATURE_NPY)
+    tr_verified = np.load(TR_VERIFY_NPY)
+    dictionary = json.load(open(LABEL_DICT_NPY))
+    ts_name_list = pickle.load(open(TS_F_NAME_NPY, "rb"))
+    return dictionary, tr_features, tr_labels, tr_verified, ts_features, ts_name_list
+
+#***********************************************************************************************#
+#                                                                                               #
+#   Module:                                                                                     #
+#   store_features()                                                                            #
+#                                                                                               #
+#   Description:                                                                                #
+#   Program responsible for storing pre-made features to files.                                 #
+#                                                                                               #
+#***********************************************************************************************#
+def store_features(dictionary, tr_features, tr_labels, tr_verified, ts_features, ts_name_list):
+    np.save(TR_FEATURE_NPY, tr_features)
+    np.save(TR_LABEL_NPY, tr_labels)
+    np.save(TS_FEATURE_NPY, ts_features)
+    np.save(TR_VERIFY_NPY, tr_verified)
+    json.dump(dictionary, open(LABEL_DICT_NPY,'w'))
+    pickle.dump(ts_name_list, open(TS_F_NAME_NPY, "wb"))
