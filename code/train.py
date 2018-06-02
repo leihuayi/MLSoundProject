@@ -8,6 +8,26 @@ import pandas as pd
 import utils
 import tensorflow as tf
 
+#-----------------------------------------------------------------------------------------------#
+#                                                                                               #
+#   Define global parameters to be used through out the program                                 #
+#                                                                                               #
+#-----------------------------------------------------------------------------------------------#
+frames = 41
+bands = 60
+
+feature_size = 2460 #60x41
+num_labels = 10
+num_channels = 2
+
+batch_size = 50
+kernel_size = 30
+depth = 20
+num_hidden = 200
+
+learning_rate = 0.01
+total_iterations = 2000
+
 #***********************************************************************************************#
 #                                                                                               #
 #   Module:                                                                                     #
@@ -19,8 +39,15 @@ import tensorflow as tf
 #                                                                                               #
 #***********************************************************************************************#
 def train(tr_features, tr_labels, ts_features, n_classes, training_epochs = 5000):
-     mnn_y_pred, mnn_probs, mnn_pred = tensor_multilayer_neural_network(tr_features, tr_labels, ts_features, n_classes, training_epochs)
-     return ensemble_results(mnn_probs, mnn_pred)
+    # call the multi-layer neural network to get results
+    mnn_y_pred, mnn_probs, mnn_pred = tensor_multilayer_neural_network(tr_features, tr_labels, ts_features, n_classes, training_epochs)
+    # call the 1d convolutional network code here
+    
+    # call the 2d convolutional network code here
+    cnn_2d_y_pred, cnn_2d_probs, cnn_2d_pred = tensor_convolution_2D(tr_features, tr_labels, ts_features, n_classes, training_epochs)
+    
+    # ensemble the results to get combined prediction
+    return ensemble_results(mnn_probs, mnn_pred, cnn_2d_probs, cnn_2d_pred)
     
 #***********************************************************************************************#
 #                                                                                               #
@@ -31,7 +58,7 @@ def train(tr_features, tr_labels, ts_features, n_classes, training_epochs = 5000
 #   Ensemble the results of all the models and return top 3 predictions.                        #
 #                                                                                               #
 #***********************************************************************************************#
-def ensemble_results(mnn_probs, mnn_pred):
+def ensemble_results(mnn_probs, mnn_pred, cnn_2d_probs, cnn_2d_pred):
     top3 = mnn_pred[:, [0, 1, 2]]
     return top3
 
@@ -99,7 +126,7 @@ def tensor_multilayer_neural_network(tr_features, tr_labels, ts_features, n_clas
         y_k_probs, y_k_pred = sess.run(tf.nn.top_k(y_, k=n_classes), feed_dict={X: ts_features})
     # plot cost history
     df = pd.DataFrame(cost_history)
-    df.to_csv("../data/cost_history.csv")
+    df.to_csv("../data/cost_history_mnn.csv")
 
     # return the predicted values back to the calling program
     return y_pred, y_k_probs, y_k_pred
@@ -125,5 +152,76 @@ def convolution_1D(tr_features, tr_labels, ts_features, n_classes, training_epoc
 #   Building a 2 dimentional convolutional network for training and prediction of audio tags.   #
 #                                                                                               #
 #***********************************************************************************************#
-def convolution_2D(tr_features, tr_labels, ts_features, n_classes, training_epochs):
-    print("Please build the model")
+def tensor_convolution_2D(tr_features, tr_labels, ts_features, n_classes, training_epochs):
+    # initial values declarations
+    X = tf.placeholder(tf.float32, shape=[None,bands,frames,num_channels])
+    Y = tf.placeholder(tf.float32, shape=[None,num_labels])
+    
+    # building a convolutional network
+    cov = apply_convolution(X,kernel_size,num_channels,depth)
+
+    shape = cov.get_shape().as_list()
+    cov_flat = tf.reshape(cov, [-1, shape[1] * shape[2] * shape[3]])
+    
+    f_weights = weight_variable([shape[1] * shape[2] * depth, num_hidden])
+    f_biases = bias_variable([num_hidden])
+    f = tf.nn.sigmoid(tf.add(tf.matmul(cov_flat, f_weights),f_biases))
+    
+    out_weights = weight_variable([num_hidden, num_labels])
+    out_biases = bias_variable([num_labels])
+    y_ = tf.nn.softmax(tf.matmul(f, out_weights) + out_biases)
+    
+    loss = -tf.reduce_sum(Y * tf.log(y_))
+    optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss)
+    
+    cost_history = np.empty(shape=[1],dtype=float)
+    with tf.Session() as session:
+        tf.initialize_all_variables().run()
+
+        for itr in range(total_iterations):    
+            offset = (itr * batch_size) % (tr_labels.shape[0] - batch_size)
+            batch_x = tr_features[offset:(offset + batch_size), :, :, :]
+            batch_y = tr_labels[offset:(offset + batch_size), :]
+            
+            _, c = session.run([optimizer, loss],feed_dict={X: batch_x, Y : batch_y})
+            cost_history = np.append(cost_history,c)
+    
+        # predict results based on the trained model
+        y_pred = session.run(tf.argmax(y_,1),feed_dict={X: ts_features})
+        y_k_probs, y_k_pred = session.run(tf.nn.top_k(y_, k=n_classes), feed_dict={X: ts_features})
+
+    # plot cost history
+    df = pd.DataFrame(cost_history)
+    df.to_csv("../data/cost_history_cnn.csv")
+
+    # return the predicted values back to the calling program
+    return y_pred, y_k_probs, y_k_pred
+        
+#***********************************************************************************************#
+#                                                                                               #
+#   Module:                                                                                     #
+#   helper functions                                                                            #
+#                                                                                               #
+#   Description:                                                                                #
+#   Helper functions for building a 2D convolutional network.                                   #
+#                                                                                               #
+#***********************************************************************************************#
+def weight_variable(shape):
+    initial = tf.truncated_normal(shape, stddev = 0.1)
+    return tf.Variable(initial)
+
+def bias_variable(shape):
+    initial = tf.constant(1.0, shape = shape)
+    return tf.Variable(initial)
+
+def conv2d(x, W):
+    return tf.nn.conv2d(x,W,strides=[1,2,2,1], padding='SAME')
+
+def apply_convolution(x,kernel_size,num_channels,depth):
+    weights = weight_variable([kernel_size, kernel_size, num_channels, depth])
+    biases = bias_variable([depth])
+    return tf.nn.relu(tf.add(conv2d(x, weights),biases))
+
+def apply_max_pool(x,kernel_size,stride_size):
+    return tf.nn.max_pool(x, ksize=[1, kernel_size, kernel_size, 1], strides=[1, stride_size, stride_size, 1], padding='SAME')
+
