@@ -13,20 +13,6 @@ import tensorflow as tf
 #   Define global parameters to be used through out the program                                 #
 #                                                                                               #
 #-----------------------------------------------------------------------------------------------#
-frames = 41
-bands = 60
-
-feature_size = 2460 #60x41
-num_labels = 10
-num_channels = 2
-
-batch_size = 50
-kernel_size = 30
-depth = 20
-num_hidden = 200
-
-learning_rate = 0.01
-total_iterations = 2000
 
 #***********************************************************************************************#
 #                                                                                               #
@@ -59,7 +45,19 @@ def train(tr_features, tr_labels, ts_features, n_classes, training_epochs = 5000
 #                                                                                               #
 #***********************************************************************************************#
 def ensemble_results(mnn_probs, mnn_pred, cnn_2d_probs, cnn_2d_pred):
-    top3 = mnn_pred[:, [0, 1, 2]]
+    # create a local ensemble output variable
+    ensembled_output = np.zeros(shape=(mnn_probs.shape[0], mnn_probs.shape[1]))
+    # add the mnn predictions to the ensemble output
+    for row, columns in enumerate(mnn_pred):
+        for i, column in enumerate(columns):
+            ensembled_output[row, column] += mnn_probs[row, i]
+    # add the 2D cnn predictions to the ensemble output
+    for row, columns in enumerate(cnn_2d_pred):
+        for i, column in enumerate(columns):
+            ensembled_output[row, column] += cnn_2d_probs[row, i]
+    # extract top three predictions
+    top3 = ensembled_output.argsort()[:,-3:][:,::-1]
+    # return the top 3 results
     return top3
 
 #***********************************************************************************************#
@@ -153,13 +151,30 @@ def convolution_1D(tr_features, tr_labels, ts_features, n_classes, training_epoc
 #                                                                                               #
 #***********************************************************************************************#
 def tensor_convolution_2D(tr_features, tr_labels, ts_features, n_classes, training_epochs):
+    
+    # local variables
+    frames = 41
+    bands = 60
+    
+    #feature_size = 2460 #60x41
+    num_labels = 10
+    num_channels = 2
+    
+    batch_size = 50
+    kernel_size = 30
+    depth = 20
+    num_hidden = 200
+
     # initial values declarations
     X = tf.placeholder(tf.float32, shape=[None,bands,frames,num_channels])
     Y = tf.placeholder(tf.float32, shape=[None,num_labels])
     
     # building a convolutional network
     cov = apply_convolution(X,kernel_size,num_channels,depth)
-
+    
+    # initializing starting learning rate - will use decaying technique
+    learning_rate = 0.01
+    
     shape = cov.get_shape().as_list()
     cov_flat = tf.reshape(cov, [-1, shape[1] * shape[2] * shape[3]])
     
@@ -178,7 +193,7 @@ def tensor_convolution_2D(tr_features, tr_labels, ts_features, n_classes, traini
     with tf.Session() as session:
         tf.initialize_all_variables().run()
 
-        for itr in range(total_iterations):    
+        for itr in range(training_epochs):    
             offset = (itr * batch_size) % (tr_labels.shape[0] - batch_size)
             batch_x = tr_features[offset:(offset + batch_size), :, :, :]
             batch_y = tr_labels[offset:(offset + batch_size), :]
