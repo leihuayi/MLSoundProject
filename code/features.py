@@ -56,7 +56,7 @@ def extract_feature(file_name):
 #***********************************************************************************************#
 def p_train_thread(audio_path, label_dictionary, data):
     # initialize variables
-    features, labels= np.empty((0,FEATURE_SIZE)), np.empty(0)
+    features, labels = np.empty((0,FEATURE_SIZE)), np.empty(0)
     # process this threads share of workload
     for i in range(data.shape[0]):
             # add a log message to be displayed after processing every 250 files.
@@ -68,6 +68,7 @@ def p_train_thread(audio_path, label_dictionary, data):
             ext_features = np.hstack([mfccs,chroma,mel,contrast,tonnetz])
             features = np.vstack([features,ext_features])
             labels = np.append(labels, label_dictionary[line["label"]])
+
     # return the extracted features to the calling program
     return features, labels
 
@@ -104,8 +105,6 @@ def p_predict_thread(audio_path, name_list):
 #                                                                                               #
 #***********************************************************************************************#
 def parse_audio_files_predict(audio_path, nn_type, file_ext="*.wav"): 
-    # initialize variables
-    features = np.empty((0,FEATURE_SIZE)) 
     # get the list of files in the audio folder
     name_list = os.listdir(audio_path) 
     # create a thread pool to process the workload
@@ -115,8 +114,10 @@ def parse_audio_files_predict(audio_path, nn_type, file_ext="*.wav"):
     # each chunk is the amount of data that will be processed by a single thread
     for chunk in data:
         if nn_type == 0:
+            features = np.empty((0,FEATURE_SIZE)) 
             thread_pool.append(utils.ThreadWithReturnValue(target=p_predict_thread, args=(audio_path, chunk)))
         else:
+            features = np.empty((0,60,41,2))
             thread_pool.append(utils.ThreadWithReturnValue(target=p_predict_cnn_thread, args=(audio_path, chunk)))
     # print a log message for status update
     utils.write_log_msg("PREDICT: creating a total of {0} threads...".format(len(thread_pool)))  
@@ -148,7 +149,7 @@ def parse_audio_files_predict(audio_path, nn_type, file_ext="*.wav"):
 #***********************************************************************************************#
 def parse_audio_files_train(audio_path, train_csv_path, label_dictionary, nn_type, file_ext="*.wav"):
     # initialize variables
-    features, labels = np.empty((0,FEATURE_SIZE)), np.empty(0)  
+    labels = np.empty(0)  
     # read audio files using pandas and split it into chunks of 'CHUNK_SIZE' files each
     data = pd.read_csv(train_csv_path, chunksize=CHUNK_SIZE)
     # create a thread pool to process the workload
@@ -156,8 +157,10 @@ def parse_audio_files_train(audio_path, train_csv_path, label_dictionary, nn_typ
     # each chunk is the amount of data that will be processed by a single thread
     for chunk in data:
         if(nn_type == 0):
+            features = np.empty((0,FEATURE_SIZE))
             thread_pool.append(utils.ThreadWithReturnValue(target=p_train_thread, args=(audio_path, label_dictionary, chunk)))
         else:
+            features = np.empty((0,60,41,2))
             thread_pool.append(utils.ThreadWithReturnValue(target=p_train_cnn_thread, args=(audio_path, label_dictionary, chunk)))
     # print a log message for status update
     utils.write_log_msg("TRAIN: creating a total of {0} threads...".format(len(thread_pool)))  
@@ -171,7 +174,9 @@ def parse_audio_files_train(audio_path, train_csv_path, label_dictionary, nn_typ
         labels = np.append(labels, lbl)
     # perform final touches to extracted arrays
     features = np.array(features)
+    print(labels)
     labels = one_hot_encode(np.array(labels, dtype = np.int))
+
     # normalize data
     #mean = np.mean(features, axis=0)
     #std = np.std(features, axis=0)
@@ -209,7 +214,7 @@ def windows(data, window_size):
     start = 0
     while start < len(data):
         yield start, start + window_size
-        start += (window_size / 2)
+        start += int(window_size / 2)
 
 #***********************************************************************************************#
 #                                                                                               #
@@ -225,6 +230,7 @@ def p_train_cnn_thread(audio_path, label_dictionary, data, bands = 60, frames = 
     labels = np.empty(0)
     window_size = 512 * (frames - 1)
     log_specgrams = [] 
+
     # process this threads share of workload
     for i in range(data.shape[0]):
             # add a log message to be displayed after processing every 250 files.
@@ -237,10 +243,10 @@ def p_train_cnn_thread(audio_path, label_dictionary, data, bands = 60, frames = 
                 if(len(sound_clip[start:end]) == window_size):
                     signal = sound_clip[start:end]
                     melspec = librosa.feature.melspectrogram(signal, n_mels = bands)
-                    logspec = librosa.logamplitude(melspec)
+                    logspec = librosa.core.amplitude_to_db(melspec)
                     logspec = logspec.T.flatten()[:, np.newaxis].T
                     log_specgrams.append(logspec)
-                    labels = np.append(labels,label_dictionary[line["label"]])
+            labels = np.append(labels,label_dictionary[line["label"]])
             
     log_specgrams = np.asarray(log_specgrams).reshape(len(log_specgrams),bands,frames,1)
     features = np.concatenate((log_specgrams, np.zeros(np.shape(log_specgrams))), axis = 3)
@@ -248,6 +254,7 @@ def p_train_cnn_thread(audio_path, label_dictionary, data, bands = 60, frames = 
         features[i, :, :, 1] = librosa.feature.delta(features[i, :, :, 0])
 
     # return the extracted features to the calling program
+    print(np.array(features).shape)
     return np.array(features), labels
 
 #***********************************************************************************************#
@@ -263,6 +270,7 @@ def p_predict_cnn_thread(audio_path, name_list, bands = 60, frames = 41):
     # initialize variables
     window_size = 512 * (frames - 1)
     log_specgrams = []
+
     # traverse through the name list and process this threads workload
     for fname in name_list:
         sound_clip,s = librosa.load(audio_path+fname,res_type='kaiser_fast')
@@ -270,7 +278,7 @@ def p_predict_cnn_thread(audio_path, name_list, bands = 60, frames = 41):
             if(len(sound_clip[start:end]) == window_size):
                 signal = sound_clip[start:end]
                 melspec = librosa.feature.melspectrogram(signal, n_mels = bands)
-                logspec = librosa.logamplitude(melspec)
+                logspec = librosa.core.amplitude_to_db(melspec)
                 logspec = logspec.T.flatten()[:, np.newaxis].T
                 log_specgrams.append(logspec)
 

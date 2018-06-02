@@ -39,9 +39,9 @@ def read_audio_files():
     # print a log message for status update
     utils.write_log_msg("extracting features of training data...")  
     # call the feature extraction module to get audio features
-    tr_mnn_features, tr_mnn_labels =  features.parse_audio_files_train(TRAIN_AUDIO_PATH,TRAIN_CSV,dictionary, 0)  
+    tr_mnn_features, tr_mnn_labels =  features.parse_audio_files_train(TRAIN_AUDIO_PATH,TRAIN_CSV,dictionary, 1)  
     # call the feature extraction module to get audio features
-    tr_cnn_features, tr_cnn_labels =  features.parse_audio_files_train(TRAIN_AUDIO_PATH,TRAIN_CSV,dictionary, 1)  
+    tr_cnn_features, tr_cnn_labels =  features.parse_audio_files_train(TRAIN_AUDIO_PATH,TRAIN_CSV,dictionary, 0)  
     
     # print a log message for status update
     utils.write_log_msg("processed {0} files of training data for mnn...".format(len(tr_mnn_features)))  
