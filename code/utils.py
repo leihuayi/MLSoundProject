@@ -62,7 +62,10 @@ def print_csv_file(predicts, name_list, dictionary, output_path):
     file_ = open(output_path, "w")
     file_.write("fname,label\n")
     for i, value in enumerate(predicts):
-        file_.write("%s,%s\n" % (name_list[i], [k for k, v in dictionary.items() if v == value][0]))
+        lbl_1 = [k for k, v in dictionary.items() if v == value[0]][0]
+        lbl_2 = [k for k, v in dictionary.items() if v == value[1]][0]
+        lbl_3 = [k for k, v in dictionary.items() if v == value[2]][0]
+        file_.write("%s,%s %s %s\n" % (name_list[i], lbl_1, lbl_2, lbl_3))
     # corrupt data append
     file_.write("0b0427e2.wav,Harmonica\n6ea0099f.wav,Harmonica\nb39975f5.wav,Harmonica")     
 

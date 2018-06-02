@@ -72,11 +72,11 @@ def main(_load = False):
     # print a log message for status update
     utils.write_log_msg("starting multi-layer neural network training...")
     # use the above extracted features for the training of the model
-    predict_multilayer_nn = train.train(tr_features, tr_labels, ts_features, n_classes=len(dictionary), module="T")
+    predictions_top3 = train.train(tr_features, tr_labels, ts_features, n_classes=len(dictionary))
     # print a log message for status update
     utils.write_log_msg("outputing prediction results to a csv file...")
     # print the predicted results to a csv file.
-    utils.print_csv_file(predict_multilayer_nn, ts_name_list, dictionary, OUTPUT_CSV)
+    utils.print_csv_file(predictions_top3, ts_name_list, dictionary, OUTPUT_CSV)
     # print a log message for status update
     utils.write_log_msg("done...")
 

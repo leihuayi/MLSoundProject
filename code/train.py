@@ -7,9 +7,6 @@ import numpy as np
 import pandas as pd
 import utils
 import tensorflow as tf
-from sklearn.neural_network import MLPClassifier
-
-
 
 #***********************************************************************************************#
 #                                                                                               #
@@ -21,23 +18,30 @@ from sklearn.neural_network import MLPClassifier
 #   features and selected options.                                                              #
 #                                                                                               #
 #***********************************************************************************************#
-def train(tr_features, tr_labels, ts_features, n_classes, training_epochs = 1000, module="T"):
-    if module == "S":
-        return sklearn_multilayer_neural_network(tr_features, tr_labels, ts_features, n_classes, training_epochs)
-    elif module == "T":
-        return tensor_multilayer_neural_network(tr_features, tr_labels, ts_features, n_classes, training_epochs)
-    else:
-        utils.write_log_msg("invalid module {0} provided...".format(module))
-        raise ValueError("invalid module {0} provided...".format(module))
-        
+def train(tr_features, tr_labels, ts_features, n_classes, training_epochs = 5000):
+     mnn_y_pred, mnn_probs, mnn_pred = tensor_multilayer_neural_network(tr_features, tr_labels, ts_features, n_classes, training_epochs)
+     return ensemble_results(mnn_probs, mnn_pred)
+    
+#***********************************************************************************************#
+#                                                                                               #
+#   Module:                                                                                     #
+#   ensemble_results()                                                                          #
+#                                                                                               #
+#   Description:                                                                                #
+#   Ensemble the results of all the models and return top 3 predictions.                        #
+#                                                                                               #
+#***********************************************************************************************#
+def ensemble_results(mnn_probs, mnn_pred):
+    top3 = mnn_pred[:, [0, 1, 2]]
+    return top3
+
 #***********************************************************************************************#
 #                                                                                               #
 #   Module:                                                                                     #
 #   tensor_multilayer_neural_network()                                                          #
 #                                                                                               #
 #   Description:                                                                                #
-#   The training module of the project. Responsible for training the parameters for provided    #
-#   features and selected options.                                                              #
+#   Using tensorflow library to build a simple multi layer neural network.                      #
 #                                                                                               #
 #***********************************************************************************************#
 def tensor_multilayer_neural_network(tr_features, tr_labels, ts_features, n_classes, training_epochs):
@@ -92,30 +96,34 @@ def tensor_multilayer_neural_network(tr_features, tr_labels, ts_features, n_clas
             cost_history = np.append(cost_history,cost)
         # predict results based on the trained model
         y_pred = sess.run(tf.argmax(y_,1),feed_dict={X: ts_features})
-
+        y_k_probs, y_k_pred = sess.run(tf.nn.top_k(y_, k=n_classes), feed_dict={X: ts_features})
     # plot cost history
     df = pd.DataFrame(cost_history)
     df.to_csv("../data/cost_history.csv")
 
     # return the predicted values back to the calling program
-    return y_pred
+    return y_pred, y_k_probs, y_k_pred
 
 #***********************************************************************************************#
 #                                                                                               #
 #   Module:                                                                                     #
-#   sklearn_multilayer_neural_network()                                                         #
+#   convolution_1D()                                                                            #
 #                                                                                               #
 #   Description:                                                                                #
-#   The training module of the project. Responsible for training the parameters for provided    #
-#   features and selected options.                                                              #
+#   Building a 1 dimentional convolutional network for training and prediction of audio tags.   #
 #                                                                                               #
 #***********************************************************************************************#
-def sklearn_multilayer_neural_network(tr_features, tr_labels, ts_features, n_classes, training_epochs):
-    # define an instance of MLP classifier
-    mlp = MLPClassifier(hidden_layer_sizes=(280,300,320),max_iter=training_epochs)
-    # fit the mlp model to our data
-    mlp.fit(tr_features, tr_labels)
-    # get prediction results
-    ts_pred = mlp.predict(ts_features)
-    # return the predicted values back to the calling program
-    return ts_pred
+def convolution_1D(tr_features, tr_labels, ts_features, n_classes, training_epochs):
+    print("Please build the model")
+    
+#***********************************************************************************************#
+#                                                                                               #
+#   Module:                                                                                     #
+#   convolution_2D()                                                                            #
+#                                                                                               #
+#   Description:                                                                                #
+#   Building a 2 dimentional convolutional network for training and prediction of audio tags.   #
+#                                                                                               #
+#***********************************************************************************************#
+def convolution_2D(tr_features, tr_labels, ts_features, n_classes, training_epochs):
+    print("Please build the model")
