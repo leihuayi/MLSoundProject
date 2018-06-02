@@ -61,7 +61,7 @@ def read_audio_files():
 #   Main program responsible for bringing everything together.                                  #
 #                                                                                               #
 #***********************************************************************************************#
-def main(_load = False):
+def main(_load = True):
     # intialize the log file for current run of the code
     utils.initialize_log()  
     # read audio files and parse them or simply load from pre-extracted feature files

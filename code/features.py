@@ -24,6 +24,7 @@ TS_F_NAME_NPY = os.path.join(os.path.dirname(__file__),"../data/f5.npy")
 LABEL_DICT_NPY = os.path.join(os.path.dirname(__file__),"../data/f6.txt")
 
 CHUNK_SIZE = 500
+FEATURE_SIZE = 193
 
 #***********************************************************************************************#
 #                                                                                               #
@@ -56,7 +57,7 @@ def extract_feature(file_name):
 #***********************************************************************************************#
 def p_train_thread(audio_path, label_dictionary, data):
     # initialize variables
-    features, labels, verified = np.empty((0,193)), np.empty(0), np.empty(0)    
+    features, labels, verified = np.empty((0,FEATURE_SIZE)), np.empty(0), np.empty(0)    
     # process this threads share of workload
     for i in range(data.shape[0]):
             # add a log message to be displayed after processing every 250 files.
@@ -86,9 +87,10 @@ def p_train_thread(audio_path, label_dictionary, data):
 #***********************************************************************************************#
 def p_predict_thread(audio_path, name_list):
     # initialize variables
-    features = np.empty((0,193))
+    features = np.empty((0,FEATURE_SIZE))
     # traverse through the name list and process this threads workload
     for fname in name_list:
+        X, sample_rate = librosa.load(audio_path+fname, res_type='kaiser_fast')
         mfccs, chroma, mel, contrast,tonnetz = extract_feature(audio_path+fname)
         ext_features = np.hstack([mfccs,chroma,mel,contrast,tonnetz])
         features = np.vstack([features,ext_features])
@@ -109,7 +111,7 @@ def p_predict_thread(audio_path, name_list):
 def parse_audio_files_predict(audio_path, file_ext="*.wav"):
     
     # initialize variables
-    features = np.empty((0,193))
+    features = np.empty((0,FEATURE_SIZE))
     
     # get the list of files in the audio folder
     name_list = os.listdir(audio_path)
@@ -135,9 +137,19 @@ def parse_audio_files_predict(audio_path, file_ext="*.wav"):
     for single_thread in thread_pool:
         ft = single_thread.join()
         features = np.vstack([features,ft])
+
+    # normalize data
+    mean = np.mean(features, axis=0)
+    std = np.std(features, axis=0)
+    features = (features - mean)/std
     
     # perform final touches to extracted arrays
     features = np.array(features)
+
+    # normalize data
+    mean = np.mean(features, axis=0)
+    std = np.std(features, axis=0)
+    features = (features - mean)/std
     
     # return the extracted features to the calling program
     return features, name_list
@@ -153,7 +165,7 @@ def parse_audio_files_predict(audio_path, file_ext="*.wav"):
 #***********************************************************************************************#
 def parse_audio_files_train(audio_path, train_csv_path, label_dictionary, file_ext="*.wav"):
     # initialize variables
-    features, labels, verified = np.empty((0,193)), np.empty(0), np.empty(0)    
+    features, labels, verified = np.empty((0,FEATURE_SIZE)), np.empty(0), np.empty(0)    
     
     # read audio files using pandas and split it into chunks of 'CHUNK_SIZE' files each
     data = pd.read_csv(train_csv_path, chunksize=CHUNK_SIZE)
@@ -178,11 +190,21 @@ def parse_audio_files_train(audio_path, train_csv_path, label_dictionary, file_e
         features = np.vstack([features,ft])
         labels = np.append(labels, lbl)
         verified = np.append(verified, stat)
+
+    # normalize data
+    mean = np.mean(features, axis=0)
+    std = np.std(features, axis=0)
+    features = (features - mean)/std
     
     # perform final touches to extracted arrays
     features = np.array(features)
     labels = one_hot_encode(np.array(labels, dtype = np.int))
     verified = np.array(verified, dtype=np.bool)
+
+    # normalize data
+    mean = np.mean(features, axis=0)
+    std = np.std(features, axis=0)
+    features = (features - mean)/std
     
     # return the extracted features to the calling program
     return features, labels, verified
