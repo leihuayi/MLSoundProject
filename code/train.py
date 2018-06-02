@@ -97,9 +97,10 @@ def tensor_multilayer_neural_network(tr_features, tr_labels, ts_features, n_clas
         # predict results based on the trained model
         y_pred = sess.run(tf.argmax(y_,1),feed_dict={X: ts_features})
         y_k_probs, y_k_pred = sess.run(tf.nn.top_k(y_, k=n_classes), feed_dict={X: ts_features})
+
     # plot cost history
     df = pd.DataFrame(cost_history)
-    df.to_csv("../data/cost_history.csv")
+    df.to_csv("../data/cost_history_nn.csv")
 
     # return the predicted values back to the calling program
     return y_pred, y_k_probs, y_k_pred
@@ -113,55 +114,79 @@ def tensor_multilayer_neural_network(tr_features, tr_labels, ts_features, n_clas
 #   Building a 1 dimentional convolutional network for training and prediction of audio tags.   #
 #                                                                                               #
 #***********************************************************************************************#
-def convolution_1D(tr_features, tr_labels, ts_features, n_classes, training_epochs):
-      """Model function for CNN."""
-  # Input Layer
-  input_layer = tf.reshape(tr_features, [-1, 193, 1, 1])
 
-  # Convolutional Layer #1
-  conv1 = tf.layers.conv1d(inputs=input_layer,filters=32,kernel_size=[3, 3],strides=1,padding="valid",activation=tf.nn.relu)
+def weight_variable(shape):
+    initial = tf.truncated_normal(shape, stddev = 0.1)
+    return tf.Variable(initial)
 
-  # Pooling Layer #1
-  pool1 = tf.layers.max_pooling1d(inputs=conv1, pool_size=[4, 4], strides=1)
+def bias_variable(shape):
+    initial = tf.constant(1.0, shape = shape)
+    return tf.Variable(initial)
 
-  # Dense Layer
-  pool1_flat = tf.reshape(pool1, [-1, 7 * 7 * 64])
-  dense = tf.layers.dense(inputs=pool2_flat, units=1024, activation=tf.nn.relu)
-  dropout = tf.layers.dropout(
-      inputs=dense, rate=0.4, training=mode == learn.ModeKeys.TRAIN)
+def convolution_1D(tr_features, tr_labels, ts_features, n_classes, training_epochs=2000):
 
-  # Logits Layer
-  logits = tf.layers.dense(inputs=dropout, units=10)
+    # CNN parameters
+    feature_size = 2460 #60x41
+    num_labels = 10
+    num_channels = 2
 
-  loss = None
-  train_op = None
+    batch_size = 50
+    kernel_size = 30
+    depth = 20
+    num_hidden = 200
 
-  # Calculate Loss (for both TRAIN and EVAL modes)
-  if mode != learn.ModeKeys.INFER:
-    onehot_labels = tf.one_hot(indices=tf.cast(labels, tf.int32), depth=10)
-    loss = tf.losses.softmax_cross_entropy(
-        onehot_labels=onehot_labels, logits=logits)
+    learning_rate = 0.01
 
-  # Configure the Training Op (for TRAIN mode)
-  if mode == learn.ModeKeys.TRAIN:
-    train_op = tf.contrib.layers.optimize_loss(
-        loss=loss,
-        global_step=tf.contrib.framework.get_global_step(),
-        learning_rate=0.001,
-        optimizer="SGD")
+    # Create CNN model
+    X = tf.placeholder(tf.float32, shape=[None,feature_size,num_channels])
+    Y = tf.placeholder(tf.float32, shape=[None,num_labels])
 
-  # Generate Predictions
-  predictions = {
-      "classes": tf.argmax(
-          input=logits, axis=1),
-      "probabilities": tf.nn.softmax(
-          logits, name="softmax_tensor")
-  }
+    cov = apply_convolution(X,kernel_size,num_channels,depth)
 
-  # Return a ModelFnOps object
-  return model_fn_lib.ModelFnOps(
-      mode=mode, predictions=predictions, loss=loss, train_op=train_op)
-    print("Please build the model")
+    weights = weight_variable([kernel_size, kernel_size, num_channels, depth])
+    biases = bias_variable([depth])
+    cov = tf.nn.relu( tf.add(tf.nn.conv1d(x,weights,strides=[1,2,2,1], padding='SAME'), biases) )
+
+    shape = cov.get_shape().as_list()
+    cov_flat = tf.reshape(cov, [-1, shape[1] * shape[2] * shape[3]])
+
+    f_weights = weight_variable([shape[1] * shape[2] * depth, num_hidden])
+    f_biases = bias_variable([num_hidden])
+    f = tf.nn.sigmoid(tf.add(tf.matmul(cov_flat, f_weights),f_biases))
+
+    out_weights = weight_variable([num_hidden, num_labels])
+    out_biases = bias_variable([num_labels])
+    y_ = tf.nn.softmax(tf.matmul(f, out_weights) + out_biases)
+
+    loss = -tf.reduce_sum(Y * tf.log(y_))
+    optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss)
+    correct_prediction = tf.equal(tf.argmax(y_,1), tf.argmax(Y,1))
+    accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+
+    # Train CNN
+    cost_history = np.empty(shape=[1],dtype=float)
+    with tf.Session() as session:
+        tf.initialize_all_variables().run()
+
+        for itr in range(training_epochs):    
+            offset = (itr * batch_size) % (tr_labels.shape[0] - batch_size)
+            batch_x = tr_features[offset:(offset + batch_size), :, :, :]
+            batch_y = tr_labels[offset:(offset + batch_size), :]
+            
+            _, c = session.run([optimizer, loss],feed_dict={X: batch_x, Y : batch_y})
+            cost_history = np.append(cost_history,c)
+
+        # predict results based on the trained model
+        y_pred = sess.run(tf.argmax(y_,1),feed_dict={X: ts_features})
+        y_k_probs, y_k_pred = sess.run(tf.nn.top_k(y_, k=n_classes), feed_dict={X: ts_features})
+        
+    # plot cost history
+    df = pd.DataFrame(cost_history)
+    df.to_csv("../data/cost_history_cnn1d.csv")
+
+    # return the predicted values back to the calling program
+    return y_pred, y_k_probs, y_k_pred
+
     
 #***********************************************************************************************#
 #                                                                                               #
