@@ -141,6 +141,53 @@ def tensor_multilayer_neural_network(tr_features, tr_labels, ts_features, n_clas
 #                                                                                               #
 #***********************************************************************************************#
 def convolution_1D(tr_features, tr_labels, ts_features, n_classes, training_epochs):
+      """Model function for CNN."""
+  # Input Layer
+  input_layer = tf.reshape(tr_features, [-1, 193, 1, 1])
+
+  # Convolutional Layer #1
+  conv1 = tf.layers.conv1d(inputs=input_layer,filters=32,kernel_size=[3, 3],strides=1,padding="valid",activation=tf.nn.relu)
+
+  # Pooling Layer #1
+  pool1 = tf.layers.max_pooling1d(inputs=conv1, pool_size=[4, 4], strides=1)
+
+  # Dense Layer
+  pool1_flat = tf.reshape(pool1, [-1, 7 * 7 * 64])
+  dense = tf.layers.dense(inputs=pool2_flat, units=1024, activation=tf.nn.relu)
+  dropout = tf.layers.dropout(
+      inputs=dense, rate=0.4, training=mode == learn.ModeKeys.TRAIN)
+
+  # Logits Layer
+  logits = tf.layers.dense(inputs=dropout, units=10)
+
+  loss = None
+  train_op = None
+
+  # Calculate Loss (for both TRAIN and EVAL modes)
+  if mode != learn.ModeKeys.INFER:
+    onehot_labels = tf.one_hot(indices=tf.cast(labels, tf.int32), depth=10)
+    loss = tf.losses.softmax_cross_entropy(
+        onehot_labels=onehot_labels, logits=logits)
+
+  # Configure the Training Op (for TRAIN mode)
+  if mode == learn.ModeKeys.TRAIN:
+    train_op = tf.contrib.layers.optimize_loss(
+        loss=loss,
+        global_step=tf.contrib.framework.get_global_step(),
+        learning_rate=0.001,
+        optimizer="SGD")
+
+  # Generate Predictions
+  predictions = {
+      "classes": tf.argmax(
+          input=logits, axis=1),
+      "probabilities": tf.nn.softmax(
+          logits, name="softmax_tensor")
+  }
+
+  # Return a ModelFnOps object
+  return model_fn_lib.ModelFnOps(
+      mode=mode, predictions=predictions, loss=loss, train_op=train_op)
     print("Please build the model")
     
 #***********************************************************************************************#
