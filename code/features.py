@@ -174,7 +174,7 @@ def parse_audio_files_train(audio_path, train_csv_path, label_dictionary, nn_typ
         labels = np.append(labels, lbl)
     # perform final touches to extracted arrays
     features = np.array(features)
-    print(labels)
+    #print(labels)
     labels = one_hot_encode(np.array(labels, dtype = np.int))
 
     # normalize data
