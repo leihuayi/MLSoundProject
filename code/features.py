@@ -108,7 +108,7 @@ def p_predict_thread(audio_path, name_list):
 #   Parses audio data that needs to be predicted upon.                                          #
 #                                                                                               #
 #***********************************************************************************************#
-def parse_audio_files_predict(audio_path, file_ext="*.wav"):
+def parse_audio_files_predict(audio_path, file_ext="*.wav", nn_type):
     
     # initialize variables
     features = np.empty((0,FEATURE_SIZE))
@@ -124,7 +124,11 @@ def parse_audio_files_predict(audio_path, file_ext="*.wav"):
     
     # each chunk is the amount of data that will be processed by a single thread
     for chunk in data:
-        thread_pool.append(utils.ThreadWithReturnValue(target=p_predict_thread, args=(audio_path, chunk)))
+        if nn_type == 0:
+            thread_pool.append(utils.ThreadWithReturnValue(target=p_predict_thread, args=(audio_path, chunk)))
+        else:
+            thread_pool.append(utils.ThreadWithReturnValue(target=p_predict_cnn_thread, args=(audio_path, chunk)))
+        
     
     # print a log message for status update
     utils.write_log_msg("PREDICT: creating a total of {0} threads...".format(len(thread_pool)))  
@@ -137,19 +141,14 @@ def parse_audio_files_predict(audio_path, file_ext="*.wav"):
     for single_thread in thread_pool:
         ft = single_thread.join()
         features = np.vstack([features,ft])
-
-    # normalize data
-    mean = np.mean(features, axis=0)
-    std = np.std(features, axis=0)
-    features = (features - mean)/std
     
     # perform final touches to extracted arrays
     features = np.array(features)
 
     # normalize data
-    mean = np.mean(features, axis=0)
-    std = np.std(features, axis=0)
-    features = (features - mean)/std
+    #mean = np.mean(features, axis=0)
+    #std = np.std(features, axis=0)
+    #features = (features - mean)/std
     
     # return the extracted features to the calling program
     return features, name_list
@@ -163,7 +162,7 @@ def parse_audio_files_predict(audio_path, file_ext="*.wav"):
 #   Parses the audio data that is to be used for training.                                      #
 #                                                                                               #
 #***********************************************************************************************#
-def parse_audio_files_train(audio_path, train_csv_path, label_dictionary, file_ext="*.wav"):
+def parse_audio_files_train(audio_path, train_csv_path, label_dictionary, file_ext="*.wav", nn_type):
     # initialize variables
     features, labels, verified = np.empty((0,FEATURE_SIZE)), np.empty(0), np.empty(0)    
     
@@ -175,7 +174,11 @@ def parse_audio_files_train(audio_path, train_csv_path, label_dictionary, file_e
         
     # each chunk is the amount of data that will be processed by a single thread
     for chunk in data:
-        thread_pool.append(utils.ThreadWithReturnValue(target=p_train_thread, args=(audio_path, label_dictionary, chunk)))
+        if(nn_type == 0):
+            thread_pool.append(utils.ThreadWithReturnValue(target=p_train_thread, args=(audio_path, label_dictionary, chunk)))
+        else:
+            thread_pool.append(utils.ThreadWithReturnValue(target=p_train_cnn_thread, args=(audio_path, label_dictionary, chunk)))
+        
     
     # print a log message for status update
     utils.write_log_msg("TRAIN: creating a total of {0} threads...".format(len(thread_pool)))  
@@ -190,11 +193,6 @@ def parse_audio_files_train(audio_path, train_csv_path, label_dictionary, file_e
         features = np.vstack([features,ft])
         labels = np.append(labels, lbl)
         verified = np.append(verified, stat)
-
-    # normalize data
-    mean = np.mean(features, axis=0)
-    std = np.std(features, axis=0)
-    features = (features - mean)/std
     
     # perform final touches to extracted arrays
     features = np.array(features)
@@ -202,9 +200,9 @@ def parse_audio_files_train(audio_path, train_csv_path, label_dictionary, file_e
     verified = np.array(verified, dtype=np.bool)
 
     # normalize data
-    mean = np.mean(features, axis=0)
-    std = np.std(features, axis=0)
-    features = (features - mean)/std
+    #mean = np.mean(features, axis=0)
+    #std = np.std(features, axis=0)
+    #features = (features - mean)/std
     
     # return the extracted features to the calling program
     return features, labels, verified
@@ -259,3 +257,69 @@ def store_features(dictionary, tr_features, tr_labels, tr_verified, ts_features,
     np.save(TR_VERIFY_NPY, tr_verified)
     json.dump(dictionary, open(LABEL_DICT_NPY,'w'))
     pickle.dump(ts_name_list, open(TS_F_NAME_NPY, "wb"))
+
+
+
+#***********************************************************************************************#
+#                                                                                               #
+#   Module:                                                                                     #
+#   p_train_cnn_thread()                                                                        #
+#                                                                                               #
+#   Description:                                                                                #
+#   Internal function to parse training audio files in multi-threaded environment for CNN       #
+#                                                                                               #
+#***********************************************************************************************#
+def windows(data, window_size):
+    start = 0
+    while start < len(data):
+        yield start, start + window_size
+        start += (window_size / 2)
+
+def p_train_cnn_thread(audio_path, label_dictionary, data, bands = 60, frames = 41):
+    # initialize variables
+    features, labels = np.empty((0,FEATURE_SIZE)), np.empty(0)   
+    # process this threads share of workload
+    for i in range(data.shape[0]):
+            # add a log message to be displayed after processing every 250 files.
+            if i%250 == 0:
+                utils.write_log_msg("FEATURE_TRAIN - {0}...".format(i))
+            line = data.iloc[i]
+            fn = audio_path+line["fname"]
+            sound_clip,s = librosa.load(fn,res_type='kaiser_fast')
+            for (start,end) in windows(sound_clip,window_size):
+                if(len(sound_clip[start:end]) == window_size):
+                    signal = sound_clip[start:end]
+                    melspec = librosa.feature.melspectrogram(signal, n_mels = bands)
+                    logspec = librosa.logamplitude(melspec)
+                    logspec = logspec.T.flatten()[:, np.newaxis].T
+                    log_specgrams.append(logspec)
+                    labels = np.append(labels,label_dictionary[line["label"]])
+            
+    log_specgrams = np.asarray(log_specgrams).reshape(len(log_specgrams),bands,frames,1)
+    features = np.concatenate((log_specgrams, np.zeros(np.shape(log_specgrams))), axis = 3)
+    for i in range(len(features)):
+        features[i, :, :, 1] = librosa.feature.delta(features[i, :, :, 0])
+
+    # return the extracted features to the calling program
+    return np.array(features), labels
+
+def p_predict_cnn_thread(audio_path, name_list, bands = 60, frames = 41):
+    # initialize variables
+    features = np.empty((0,FEATURE_SIZE))
+    # traverse through the name list and process this threads workload
+    for fname in name_list:
+        sound_clip,s = librosa.load(audio_path+fname,res_type='kaiser_fast')
+        for (start,end) in windows(sound_clip,window_size):
+            if(len(sound_clip[start:end]) == window_size):
+                signal = sound_clip[start:end]
+                melspec = librosa.feature.melspectrogram(signal, n_mels = bands)
+                logspec = librosa.logamplitude(melspec)
+                logspec = logspec.T.flatten()[:, np.newaxis].T
+                log_specgrams.append(logspec)
+
+    log_specgrams = np.asarray(log_specgrams).reshape(len(log_specgrams),bands,frames,1)
+    features = np.concatenate((log_specgrams, np.zeros(np.shape(log_specgrams))), axis = 3)
+    for i in range(len(features)):
+        features[i, :, :, 1] = librosa.feature.delta(features[i, :, :, 0])
+            
+    return np.array(features)
