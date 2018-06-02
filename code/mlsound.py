@@ -40,10 +40,6 @@ def read_audio_files():
     # print a log message for status update
     utils.write_log_msg("processed {0} files of training data...".format(len(tr_features)))  
     # print a log message for status update
-    utils.write_log_msg("transforming labels of the training data...")  
-    # Creates a matrix size num_samples x num_labels with (i,j) = 1(sample i has label j) 
-    tr_labels = features.one_hot_encode(tr_labels)
-    # print a log message for status update
     utils.write_log_msg("extracting features of prediction data...")  
     # call the feature extraction module to get audio features
     ts_features, ts_name_list = features.parse_audio_files_predict(TEST_AUDIO_PATH)  

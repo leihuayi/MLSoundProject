@@ -65,11 +65,9 @@ def p_train_thread(audio_path, label_dictionary, data):
                 utils.write_log_msg("FEATURE_TRAIN - {0}...".format(i))
             line = data.iloc[i]
             fn = audio_path+line["fname"]
-
-            X, sample_rate = librosa.load(fn, res_type='kaiser_fast')
-            mfccs = np.mean(librosa.feature.mfcc(y=X, sr=sample_rate, n_mfcc=40).T,axis=0)
-            #ext_features = np.hstack([mfccs,chroma,mel,contrast,tonnetz])
-            features = np.vstack([features,mfccs])
+            mfccs, chroma, mel, contrast,tonnetz = extract_feature(fn)
+            ext_features = np.hstack([mfccs,chroma,mel,contrast,tonnetz])
+            features = np.vstack([features,ext_features])
             labels = np.append(labels, label_dictionary[line["label"]])
             if line["manually_verified"] == 1:
                 verified = np.append(verified, True)    
@@ -93,11 +91,9 @@ def p_predict_thread(audio_path, name_list):
     # traverse through the name list and process this threads workload
     for fname in name_list:
         X, sample_rate = librosa.load(audio_path+fname, res_type='kaiser_fast')
-        mfccs = np.mean(librosa.feature.mfcc(y=X, sr=sample_rate, n_mfcc=40).T,axis=0)
-
-        #mfccs, chroma, mel, contrast,tonnetz = extract_feature(audio_path+fname)
-        #ext_features = np.hstack([mfccs,chroma,mel,contrast,tonnetz])
-        features = np.vstack([features,mfccs])
+        mfccs, chroma, mel, contrast,tonnetz = extract_feature(audio_path+fname)
+        ext_features = np.hstack([mfccs,chroma,mel,contrast,tonnetz])
+        features = np.vstack([features,ext_features])
         # add a log message to be displayed after processing every 250 files.
         if len(features)%250 == 0:
             utils.write_log_msg("FEATURE_PREDICT - {0}...".format(len(features)))
