@@ -138,6 +138,11 @@ def parse_audio_files_predict(audio_path, file_ext="*.wav"):
     
     # perform final touches to extracted arrays
     features = np.array(features)
+
+    # normalize data
+    mean = np.mean(features, axis=0)
+    std = np.std(features, axis=0)
+    features = (features - mean)/std
     
     # return the extracted features to the calling program
     return features, name_list
@@ -183,6 +188,11 @@ def parse_audio_files_train(audio_path, train_csv_path, label_dictionary, file_e
     features = np.array(features)
     labels = one_hot_encode(np.array(labels, dtype = np.int))
     verified = np.array(verified, dtype=np.bool)
+
+    # normalize data
+    mean = np.mean(features, axis=0)
+    std = np.std(features, axis=0)
+    features = (features - mean)/std
     
     # return the extracted features to the calling program
     return features, labels, verified
