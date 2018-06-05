@@ -25,6 +25,11 @@ LABEL_DICT_NPY = os.path.join(os.path.dirname(__file__),"../data/f5.txt")
 CHUNK_SIZE = 500
 FEATURE_SIZE = 193
 
+SAMPLE_RATE = 44100
+N_MFCC = 40
+AUDIO_DURATION = 2
+AUDIO_LENGTH = 1 + int(np.floor(AUDIO_DURATION*SAMPLE_RATE/512))
+
 #***********************************************************************************************#
 #                                                                                               #
 #   Module:                                                                                     #
@@ -37,7 +42,7 @@ FEATURE_SIZE = 193
 def extract_feature(file_name):
     X, sample_rate = librosa.load(file_name, res_type='kaiser_fast')
     stft = np.abs(librosa.stft(X))
-    mfccs = np.mean(librosa.feature.mfcc(y=X, sr=sample_rate, n_mfcc=40).T,axis=0)
+    mfccs = np.mean(librosa.feature.mfcc(y=X, sr=sample_rate, n_mfcc=N_MFCC).T,axis=0)
     chroma = np.mean(librosa.feature.chroma_stft(S=stft, sr=sample_rate).T,axis=0)
     mel = np.mean(librosa.feature.melspectrogram(X, sr=sample_rate).T,axis=0)
     contrast = np.mean(librosa.feature.spectral_contrast(S=stft, sr=sample_rate).T,axis=0)
@@ -68,7 +73,6 @@ def p_train_thread(audio_path, label_dictionary, data):
             ext_features = np.hstack([mfccs,chroma,mel,contrast,tonnetz])
             features = np.vstack([features,ext_features])
             labels = np.append(labels, label_dictionary[line["label"]])
-
     # return the extracted features to the calling program
     return features, labels
 
@@ -93,6 +97,7 @@ def p_predict_thread(audio_path, name_list):
         # add a log message to be displayed after processing every 250 files.
         if len(features)%250 == 0:
             utils.write_log_msg("FEATURE_PREDICT - {0}...".format(len(features)))
+    # return the extracted features to the calling program
     return features
 
 #***********************************************************************************************#
@@ -117,7 +122,7 @@ def parse_audio_files_predict(audio_path, nn_type, file_ext="*.wav"):
             features = np.empty((0,FEATURE_SIZE)) 
             thread_pool.append(utils.ThreadWithReturnValue(target=p_predict_thread, args=(audio_path, chunk)))
         else:
-            features = np.empty((0,60,41,2))
+            features = np.empty(shape=(0, N_MFCC, AUDIO_LENGTH, 1))
             thread_pool.append(utils.ThreadWithReturnValue(target=p_predict_cnn_thread, args=(audio_path, chunk)))
     # print a log message for status update
     utils.write_log_msg("PREDICT: creating a total of {0} threads...".format(len(thread_pool)))  
@@ -130,6 +135,7 @@ def parse_audio_files_predict(audio_path, nn_type, file_ext="*.wav"):
         features = np.vstack([features,ft])
     # perform final touches to extracted arrays
     features = np.array(features)
+    
     # normalize data
     #mean = np.mean(features, axis=0)
     #std = np.std(features, axis=0)
@@ -160,7 +166,7 @@ def parse_audio_files_train(audio_path, train_csv_path, label_dictionary, nn_typ
             features = np.empty((0,FEATURE_SIZE))
             thread_pool.append(utils.ThreadWithReturnValue(target=p_train_thread, args=(audio_path, label_dictionary, chunk)))
         else:
-            features = np.empty((0,60,41,2))
+            features = np.empty(shape=(0, N_MFCC, AUDIO_LENGTH, 1))
             thread_pool.append(utils.ThreadWithReturnValue(target=p_train_cnn_thread, args=(audio_path, label_dictionary, chunk)))
     # print a log message for status update
     utils.write_log_msg("TRAIN: creating a total of {0} threads...".format(len(thread_pool)))  
@@ -175,7 +181,7 @@ def parse_audio_files_train(audio_path, train_csv_path, label_dictionary, nn_typ
     # perform final touches to extracted arrays
     features = np.array(features)
     #print(labels)
-    labels = one_hot_encode(np.array(labels, dtype = np.int))
+    labels = np.array(labels, dtype = np.int)
 
     # normalize data
     #mean = np.mean(features, axis=0)
@@ -184,22 +190,6 @@ def parse_audio_files_train(audio_path, train_csv_path, label_dictionary, nn_typ
     
     # return the extracted features to the calling program
     return features, labels
-
-#***********************************************************************************************#
-#                                                                                               #
-#   Module:                                                                                     #
-#   one_hot_encode()                                                                            #
-#                                                                                               #
-#   Description:                                                                                #
-#   Creates a matrix size num_samples x num_labels with (i,j) = 1(sample i has label j)         #
-#                                                                                               #
-#***********************************************************************************************#
-def one_hot_encode(labels):
-    n_labels = len(labels)
-    n_unique_labels = len(np.unique(labels))
-    one_hot_encode = np.zeros((n_labels,n_unique_labels))
-    one_hot_encode[np.arange(n_labels), labels] = 1
-    return one_hot_encode
 
 #***********************************************************************************************#
 #                                                                                               #
@@ -228,34 +218,35 @@ def windows(data, window_size):
 def p_train_cnn_thread(audio_path, label_dictionary, data, bands = 60, frames = 41):
     # initialize variables
     labels = np.empty(0)
-    window_size = 512 * (frames - 1)
-    log_specgrams = [] 
-
+    X = np.empty(shape=(data.shape[0], N_MFCC, AUDIO_LENGTH, 1))
     # process this threads share of workload
     for i in range(data.shape[0]):
-            # add a log message to be displayed after processing every 250 files.
-            if i%250 == 0:
-                utils.write_log_msg("FEATURE_TRAIN - {0}...".format(i))
-            line = data.iloc[i]
-            fn = audio_path+line["fname"]
-            sound_clip,s = librosa.load(fn,res_type='kaiser_fast')
-            for (start,end) in windows(sound_clip,window_size):
-                if(len(sound_clip[start:end]) == window_size):
-                    signal = sound_clip[start:end]
-                    melspec = librosa.feature.melspectrogram(signal, n_mels = bands)
-                    logspec = librosa.core.amplitude_to_db(melspec)
-                    logspec = logspec.T.flatten()[:, np.newaxis].T
-                    log_specgrams.append(logspec)
-            labels = np.append(labels,label_dictionary[line["label"]])
-            
-    log_specgrams = np.asarray(log_specgrams).reshape(len(log_specgrams),bands,frames,1)
-    features = np.concatenate((log_specgrams, np.zeros(np.shape(log_specgrams))), axis = 3)
-    for i in range(len(features)):
-        features[i, :, :, 1] = librosa.feature.delta(features[i, :, :, 0])
-
+        # add a log message to be displayed after processing every 250 files.
+        if i%250 == 0:
+            utils.write_log_msg("FEATURE_CNN_TRAIN - {0}...".format(i))
+        line = data.iloc[i]
+        fn = audio_path+line["fname"]            
+        sound_clip, _ = librosa.core.load(fn, sr=SAMPLE_RATE, res_type='kaiser_fast')
+        # Random offset / Padding
+        if len(sound_clip) > AUDIO_DURATION:
+            max_offset = len(sound_clip) - AUDIO_DURATION
+            offset = np.random.randint(max_offset)
+            sound_clip = sound_clip[offset:(AUDIO_DURATION+offset)]
+        else:
+            if AUDIO_DURATION > len(sound_clip):
+                max_offset = AUDIO_DURATION - len(sound_clip)
+                offset = np.random.randint(max_offset)
+            else:
+                offset = 0
+            sound_clip = np.pad(sound_clip, (offset, AUDIO_DURATION - len(sound_clip) - offset), "constant")  
+        # extract mfcc features
+        mfcc = librosa.feature.mfcc(sound_clip, sr = SAMPLE_RATE, n_mfcc=N_MFCC)
+        mfcc = np.expand_dims(mfcc, axis=-1)
+        X[i,] = mfcc
+        # populate the labels array
+        labels = np.append(labels, label_dictionary[line["label"]])
     # return the extracted features to the calling program
-    print(np.array(features).shape)
-    return np.array(features), labels
+    return np.array(X), labels
 
 #***********************************************************************************************#
 #                                                                                               #
@@ -268,27 +259,32 @@ def p_train_cnn_thread(audio_path, label_dictionary, data, bands = 60, frames = 
 #***********************************************************************************************#
 def p_predict_cnn_thread(audio_path, name_list, bands = 60, frames = 41):
     # initialize variables
-    window_size = 512 * (frames - 1)
-    log_specgrams = []
-
+    X = np.empty(shape=(len(name_list), N_MFCC, AUDIO_LENGTH, 1))
     # traverse through the name list and process this threads workload
-    for fname in name_list:
-        sound_clip,s = librosa.load(audio_path+fname,res_type='kaiser_fast')
-        for (start,end) in windows(sound_clip,window_size):
-            if(len(sound_clip[start:end]) == window_size):
-                signal = sound_clip[start:end]
-                melspec = librosa.feature.melspectrogram(signal, n_mels = bands)
-                logspec = librosa.core.amplitude_to_db(melspec)
-                logspec = logspec.T.flatten()[:, np.newaxis].T
-                log_specgrams.append(logspec)
-
-    log_specgrams = np.asarray(log_specgrams).reshape(len(log_specgrams),bands,frames,1)
-    features = np.concatenate((log_specgrams, np.zeros(np.shape(log_specgrams))), axis = 3)
-    for i in range(len(features)):
-        features[i, :, :, 1] = librosa.feature.delta(features[i, :, :, 0])
-            
+    for i, fname in enumerate(name_list):
+        # add a log message to be displayed after processing every 250 files.
+        if i%250 == 0:
+            utils.write_log_msg("FEATURE_CNN_PREDICT - {0}...".format(i))
+        # read the sound file
+        sound_clip,_ = librosa.load(audio_path+fname, sr=SAMPLE_RATE, res_type='kaiser_fast')
+        # Random offset / Padding
+        if len(sound_clip) > AUDIO_DURATION:
+            max_offset = len(sound_clip) - AUDIO_DURATION
+            offset = np.random.randint(max_offset)
+            sound_clip = sound_clip[offset:(AUDIO_DURATION+offset)]
+        else:
+            if AUDIO_DURATION > len(sound_clip):
+                max_offset = AUDIO_DURATION - len(sound_clip)
+                offset = np.random.randint(max_offset)
+            else:
+                offset = 0
+            sound_clip = np.pad(sound_clip, (offset, AUDIO_DURATION - len(sound_clip) - offset), "constant")
+        # extract mfcc features
+        mfcc = librosa.feature.mfcc(sound_clip, sr = SAMPLE_RATE, n_mfcc=N_MFCC)
+        mfcc = np.expand_dims(mfcc, axis=-1)
+        X[i,] = mfcc
     # return the extracted features to the calling program
-    return np.array(features)
+    return np.array(X)
 
 #***********************************************************************************************#
 #                                                                                               #

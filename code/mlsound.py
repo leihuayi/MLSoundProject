@@ -78,7 +78,7 @@ def read_audio_files():
 #   Main program responsible for bringing everything together.                                  #
 #                                                                                               #
 #***********************************************************************************************#
-def main(_load = True):
+def main(_load = False):
     # intialize the log file for current run of the code
     utils.initialize_log()  
     # read audio files and parse them or simply load from pre-extracted feature files
@@ -93,7 +93,7 @@ def main(_load = True):
     # print a log message for status update
     utils.write_log_msg("outputing prediction results to a csv file...")
     # print the predicted results to a csv file.
-    utils.print_csv_file(predictions_top3, ts_mnn_name_list, ts_cnn_name_list, dictionary, OUTPUT_CSV)
+    utils.print_csv_file(predictions_top3, ts_mnn_name_list, dictionary, OUTPUT_CSV)
     # print a log message for status update
     utils.write_log_msg("done...")
 
