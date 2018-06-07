@@ -109,9 +109,7 @@ def p_predict_thread(audio_path, name_list):
 #   Parses audio data that needs to be predicted upon.                                          #
 #                                                                                               #
 #***********************************************************************************************#
-def parse_audio_files_predict(audio_path, nn_type, file_ext="*.wav"): 
-    # get the list of files in the audio folder
-    name_list = os.listdir(audio_path) 
+def parse_audio_files_predict(audio_path, name_list, nn_type, file_ext="*.wav"): 
     # create a thread pool to process the workload
     thread_pool = [] 
     # split the filename list into chunks of 'CHUNK_SIZE' files each
@@ -137,9 +135,9 @@ def parse_audio_files_predict(audio_path, nn_type, file_ext="*.wav"):
     features = np.array(features)
     
     # normalize data
-    #mean = np.mean(features, axis=0)
-    #std = np.std(features, axis=0)
-    #features = (features - mean)/std
+    mean = np.mean(features, axis=0)
+    std = np.std(features, axis=0)
+    features = (features - mean)/std
     
     # return the extracted features to the calling program
     return features, name_list
@@ -184,9 +182,9 @@ def parse_audio_files_train(audio_path, train_csv_path, label_dictionary, nn_typ
     labels = np.array(labels, dtype = np.int)
 
     # normalize data
-    #mean = np.mean(features, axis=0)
-    #std = np.std(features, axis=0)
-    #features = (features - mean)/std
+    mean = np.mean(features, axis=0)
+    std = np.std(features, axis=0)
+    features = (features - mean)/std
     
     # return the extracted features to the calling program
     return features, labels

@@ -51,9 +51,9 @@ def read_audio_files():
     # print a log message for status update
     utils.write_log_msg("extracting features of prediction data...")  
     # call the feature extraction module to get audio features
-    ts_mnn_features, ts_mnn_name_list = features.parse_audio_files_predict(TEST_AUDIO_PATH, 0)  
+    ts_mnn_features, ts_mnn_name_list = features.parse_audio_files_predict(TEST_AUDIO_PATH,os.listdir(TEST_AUDIO_PATH), 0)  
     # call the feature extraction module to get audio features
-    ts_cnn_features, ts_cnn_name_list = features.parse_audio_files_predict(TEST_AUDIO_PATH, 1)  
+    ts_cnn_features, ts_cnn_name_list = features.parse_audio_files_predict(TEST_AUDIO_PATH,os.listdir(TEST_AUDIO_PATH), 1)  
     
     # print a log message for status update
     utils.write_log_msg("processed {0} files of prediction data for mnn...".format(len(ts_mnn_features)))
