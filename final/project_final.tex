@@ -135,8 +135,8 @@ Tsinghua University\\
 		Parameter & Chosen value\\
 		\hline
 		Number layers & 3\\
-		Neurons per layer & 200, 250, 300\\
-		Act func per layer & tanh, sig, sig\\
+		Neurons per layer & \{200, 250, 300\}\\
+		Act func per layer & \{tanh, sig, sig\}\\
 		Learning rate & 0.005 (exp decay)\\
 		Cost function & log entropy\\
 		Optimize & adam\\ 
@@ -146,29 +146,93 @@ Tsinghua University\\
 		\end{table}
 		\vskip2ex
 
-		These settings were obtained by try-and-fail run of code, and checking the cost graph.\\
+		These settings were obtained by try-and-fail run of code :
+		\begin{itemize}
+			\item Toyoda et. al \cite{Toyoda} use 3 layers with \{48, 32, 2\} neurons. This gave a fast-converging network, however the cost was very high. On the opposite, putting \{280, 200, 300\} neurons prevented the MNN from converging with data larger than 1000 items. This is why we decreased to the final values in Table 1.
+			\item We originally took a learning rate of 0.01 based on our experience of neural nets. However the mnn would not converge this way for large dataset, this is why we gradually decreased it and used exponential decay.
+			\item We first used gradient descent optimized, but got better results with adam.
+			\item 500 or 1000 number of epochs give similar results.
+		\end{itemize}
 
 		After MNN, we implemented a 2D Convolutional Neural Network in order to compare and combine the techniques.\\
-		Regarding fixed size input, we divide each sound clip into segments of 60x41 (60 rows and 41 columns). The mel-spec and their deltas become two channels, which are fed into CNN \cite{ref6}.
+		We used Piczak et al. 's settings \cite{Piczak} for windowing by dividing each sound clip into segments of 60x41 (60 rows and 41 columns) \ref{fig:cnngraph}. The mel-spec and their deltas become two channels, which are fed into CNN.\\
+		We preferred Python package \verb+Keras+ since CNN implementation with \verb+Tensorflow+, especially concerning windowing step, is cumbersome.
 
 		\vskip1ex
 		\begin{figure}
 		\centering
 		\includegraphics[width=0.9\columnwidth]{cnn_chart.png}
 		\caption{Schema of implemented CNN}
+		\label{fig:cnngraph}
 		\end{figure}
 		\vskip2ex
+
+		The 2D CNN is built using the following steps :
+		\begin{enumerate} 
+			\item The 2D input is reshaped to one dimension.
+			\item We have a first convolutional layer. A Convolution layer tries to extract higher-level features by replacing data for each (one) pixel with a value computed from the pixels covered by the e.g. 4×10 filter centered on that pixel(all the pixels in that region). We slide the filter across the width and height of the input and compute the dot products between the entries of the filter and input at each position. "Same" padding means the output size is the same as the input size. This requires the filter window to shift out of the input map. The portions where the filter window is outside of the input map is the padding.
+			\item Add ReLU activation function. This transforms the output like so: $ReLU(x) = max(0,x)$.
+			\item  We reduce the spatial size of the output by replacing values of every pool (kernel) by the max of those values using "Max" Pooling.
+			\item We perform steps 2, 3, 4 three other times
+			\item The output is shaped back using \verb+Dense+ function. 
+		\end{enumerate}
 
 		----------- TODO USAMA : WRITE THINGS HERE -------------------
 
 \section{Experiments and results}
 	\subsection{Dataset}
+		For experimenting our neural networks, we used Freesound Dataset Kaggle 2018 (or FSDKaggle2018 for short), an audio dataset containing 18,873 .wav annotated files from Google's AudioSet Ontology \cite{audioset}.\\
+		They can have 41 different labels of various sounds, from instruments to human-origin noise :\\
+		\textit{"Acoustic\_guitar", "Applause", "Bark", "Bass\_drum", "Burping\_or\_eructation", "Bus", "Cello", "Chime", "Clarinet", "Computer\_keyboard", "Cough", "Cowbell", "Double\_bass", "Drawer\_open\_or\_close", "Electric\_piano", "Fart", "Finger\_snapping", "Fireworks", "Flute", "Glockenspiel", "Gong", "Gunshot\_or\_gunfire", "Harmonica", "Hi-hat", "Keys\_jangling", "Knock", "Laughter", "Meow", "Microwave\_oven", "Oboe", "Saxophone", "Scissors", "Shatter", "Snare\_drum", "Squeak", "Tambourine", "Tearing", "Telephone", "Trumpet", "Violin\_or\_fiddle", "Writing"}.\\
+
+		Some of the files were manually verified. The distribution of manual verification and labels is unequal across the dataset \ref{fig:category_distribution}:
+		\begin{figure}[H]
+		  \includegraphics[width=\linewidth]{../midterm/category_distribution.png}
+		  \caption{Distribution of samples per category}
+		  \label{fig:category_distribution}
+		\end{figure}
+
 
 	\subsection{Evaluation}
+		For each sound file, we give maximum 3 most likely labels.
+		Submissions are evaluated according to the Mean Average Precision @ 3 (MAP@3):
+
+		$$MAP@3 = \frac{1}{U} \displaystyle\sum_{u=1}^U \displaystyle\sum_{k=1}^{min(n,3)}P(k)$$\\
+
+		where $U$ is the number of scored audio files in the test data, $P(k)$ is the precision at cutoff k and $n$ is the number of given labels.
 
 	\subsection{Results}
+		Our score constantly improved over the submissions, by perfecting the settings of our multilayer neural net.
+		\vskip1ex
+		\begin{center}
+		\begin{tikzpicture}
+		\centering
+            \begin{axis}[width=0.90\columnwidth, height=200, ylabel=Score, xlabel=Submission]
+                \addplot[thick, teal] table [x=submission, y=score, col sep=comma ] {submissions.csv};
+            \end{axis}
+        \end{tikzpicture}
+        \end{center}
+        \vskip2ex
+
+        The cost of our MNN reaches $10^{-2}$ for the 500th epoch, which is a good performance.
+                \vskip2ex
+		\begin{center}
+		\begin{tikzpicture}
+		\centering
+            \begin{axis}[width=0.90\columnwidth, height=200, ylabel=Cost, xlabel=Num of epochs]
+                \addplot[thick, teal] table [x=epoch, y=cost, col sep=comma, ] {cost_history_mnn.csv};
+            \end{axis}
+        \end{tikzpicture}
+        \end{center}
+        \vskip2ex
+
+        ----------- TODO USAMA : WRITE THINGS HERE -------------------
+
 
 \section{Conclusion}
+
+	This work presents a classification method of environmental sounds based on neural networks. A multi-threaded feature extraction process has been developped to get valuable spectral information within an hour. After incremental trials, we build a robust yet simple multilayer neural network running almost instantaneously producing very low cost. Using MAP@3 metric with 3 most likely labels, it classifies correctly 56,4\% of the data, which is a score similar to previous works on HMM \cite{Dufaux} and multilayer neural networks \cite{Toyoda}.\\
+	Yet, a better implementation of CNN would have probably improved significantly our results, and might have helped us reach the impressive scores of Zhang et. al. \cite{Zhang}.
 
 \subsubsection*{Acknowledgments}
 	We are grateful to Tsinghua University's Department of Computer Science for providing us the ressources necessary for this project,
