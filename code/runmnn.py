@@ -63,7 +63,7 @@ def run_mnn(dataset):
 	if (dataset == 0) :
 		    ts_mnn_features, ts_mnn_name_list = features.parse_audio_files_predict(TEST_AUDIO_PATH,os.listdir(TEST_AUDIO_PATH), 0) 
 	else :
-		test_csv = pd.read_csv(TEST_CSV)
+		test_csv = pd.read_csv(TEST_CONF_CSV)
 		ts_mnn_features, ts_mnn_name_list = features.parse_audio_files_predict(TRAIN_AUDIO_PATH,test_csv["fname"].tolist(), 0) 
 
 	# print a log message for status update
