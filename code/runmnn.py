@@ -86,11 +86,11 @@ def run_mnn(dataset):
 		if(dataset ==0):
 			lbl_1 = [k for k, v in dictionary.items() if v == value[0]][0]
 			lbl_2 = [k for k, v in dictionary.items() if v == value[1]][0]
-	        lbl_3 = [k for k, v in dictionary.items() if v == value[2]][0]
-	        file_.write("%s,%s %s %s\n" % (name_list[i], lbl_1, lbl_2, lbl_3))
-        else :
-		    lbl_1 = [k for k, v in dictionary.items() if v == value[0]][0]
-		    file_.write("%s,%s\n" % (ts_mnn_name_list[i], lbl_1))
+			lbl_3 = [k for k, v in dictionary.items() if v == value[2]][0]
+			file_.write("%s,%s %s %s\n" % (name_list[i], lbl_1, lbl_2, lbl_3))
+		else :
+			lbl_1 = [k for k, v in dictionary.items() if v == value[0]][0]
+			file_.write("%s,%s\n" % (ts_mnn_name_list[i], lbl_1))
 
 	# print a log message for status update
 	utils.write_log_msg("done...")
