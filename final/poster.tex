@@ -54,7 +54,7 @@ Usama Zafar, Sarah Gross
 
 	\begin{figure}
 	\centering
-	\includegraphics[width=0.5\columnwidth]{ear_sound.jpg}
+	\includegraphics[width=0.4\columnwidth]{ear_sound.jpg}
 	\end{figure}
 
 	A lot of research has been done for speech recognition, but little tackle the issue of recognizing environmental sounds. Yet, it can have many applications, from automatic deaf-annotation on videos to robotics.\\
@@ -107,7 +107,7 @@ Usama Zafar, Sarah Gross
 		Neurons per layer & 200, 250, 300\\
 		Act func per layer & tanh, sig, sig\\
 		Learning rate & 0.005 (exp decay)\\
-		Cost function & log entropy\\
+		Cost function & cross entropy\\
 		Optimize & adam\\ 
 		Num epochs & 500\\
 		\hline\hline
@@ -145,28 +145,36 @@ Usama Zafar, Sarah Gross
 
 
 	\subsection{Results}
-		Here is our score progression curve for MNN using the evaluation quoted above:
-		\vskip1ex
+		Left: our MAP@3 score progression curve. Right: The MNN cross-entropy loss graph.
 		\begin{center}
+		\begin{minipage}{.49\linewidth}
 		\begin{tikzpicture}
+		\tikzstyle{every node}=[font=\small]
 		\centering
-            \begin{axis}[width=0.90\columnwidth, height=300, ylabel=Score, xlabel=Submission, ytick={0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9}, xtick={0,1,2,3,4,5,6,7,8},xlabel style={yshift=-0.5cm}, ylabel style={yshift=1.5cm}]
+            \begin{axis}[width=0.90\columnwidth, height=250, ylabel=Score, xlabel=Submission, ytick={0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9}, xtick={0,1,2,3,4,5,6,7,8},xlabel style={yshift=-0.5cm}, ylabel style={yshift=1cm}]
                 \addplot[thick, teal] table [x=submission, y=score, col sep=comma ] {submissions.csv};
             \end{axis}
         \end{tikzpicture}
-        \end{center}
-        \vskip2ex
-        Cost graph for the latest MNN:
-        \vskip2ex
-		\begin{center}
+        \end{minipage}
+		\begin{minipage}{.49\linewidth}
 		\begin{tikzpicture}
+		\tikzstyle{every node}=[font=\small]
 		\centering
-            \begin{axis}[width=0.90\columnwidth, height=300, ylabel=Cost, xlabel=Num of epochs,xtick={0,100,200,300,400,500},xlabel style={yshift=-0.5cm}, ylabel style={yshift=1.5cm}]
+            \begin{axis}[width=0.90\columnwidth, height=250, ylabel=Cost, xlabel=Num of epochs,xtick={0,100,200,300,400,500}, ytick={0,1000,2000,3000,4000}, xlabel style={yshift=-0.5cm}, ylabel style={yshift=1.5cm}]
                 \addplot[thick, teal] table [x=epoch, y=cost, col sep=comma, ] {cost_history_mnn.csv};
             \end{axis}
         \end{tikzpicture}
+        \end{minipage}
         \end{center}
         \vskip2ex
+
+
+        We built the confusion matrix for the 10 most frequent labels. The model makes less mistakes on the musical instruments than on the other sounds.
+		\begin{figure}
+		\centering
+		\includegraphics[width=0.90\columnwidth]{confusion_matrix.png}
+		\caption{Confusion Matrix (x: prediction, y: true label)}
+		\end{figure}
 
 \section{Conclusion}
 

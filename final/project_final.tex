@@ -138,7 +138,7 @@ Tsinghua University\\
 		Neurons per layer & \{200, 250, 300\}\\
 		Act func per layer & \{tanh, sig, sig\}\\
 		Learning rate & 0.005 (exp decay)\\
-		Cost function & log entropy\\
+		Cost function & cross entropy\\
 		Optimize & adam\\ 
 		Num epochs & 500\\
 		\hline\hline
@@ -178,6 +178,7 @@ Tsinghua University\\
 		\end{enumerate}
 
 		----------- TODO USAMA : WRITE THINGS HERE -------------------
+		More details about CNN ...
 
 \section{Experiments and results}
 	\subsection{Dataset}
@@ -202,7 +203,9 @@ Tsinghua University\\
 		where $U$ is the number of scored audio files in the test data, $P(k)$ is the precision at cutoff k and $n$ is the number of given labels.
 
 	\subsection{Results}
-		Our score constantly improved over the submissions, by perfecting the settings of our multilayer neural net.
+
+		This graph shows the score output by Kaggle using the metric previously evoked.\\
+		Perfecting the settings of the multilayer neural network makes our score constantly improve over the submissions.
 		\vskip1ex
 		\begin{center}
 		\begin{tikzpicture}
@@ -214,8 +217,9 @@ Tsinghua University\\
         \end{center}
         \vskip2ex
 
-        The cost of our MNN reaches $10^{-2}$ for the 500th epoch, which is a good performance.
-                \vskip2ex
+        Our MNN loss smoothly goes down until approximately reaching 0.5. The variation is strictly monotonic, which shows that we keep reaching towards the optimum without going over it.\\
+        Compared to other loss functions, using cross-entropy speeds up the decreasing rate of the cost.
+        \vskip2ex
 		\begin{center}
 		\begin{tikzpicture}
 		\centering
@@ -226,7 +230,24 @@ Tsinghua University\\
         \end{center}
         \vskip2ex
 
+        In order to understand better the performance of our classification algorithm, the confusion matrix \ref{fig:confusion_matrix} is built for the 10 most frequent labels : Acoustic\_guitar, Clarinet, Double\_bass, Fart, Fireworks, Hi-hat, Laughter, Saxophone, Shatter, Violin\_or\_fiddle.\\
+		\begin{figure}
+		\centering
+		\includegraphics[width=0.99\columnwidth]{confusion_matrix_full.png}
+		\caption{Confusion Matrix (x axis : prediction, y axis : true label)}
+		\label{fig:confusion_matrix}
+		\end{figure}
+		\vskip2ex
+
+		We notice that, like in Cowling et al.'s case \cite{Cowling}, the model makes less mistakes on the musical instruments than on the other sounds (Fart, Fireworks, Shatter) which are sometimes confused together. Shatter and Hi-Hat are also often mixed up, which is quite logical due to the similarity of there two sounds.\\
+        Still, even though they are all non-musical sounds, Shatter has much better statistics than Fart of Fireworks. Piczak et. al. \cite{Piczak} notice that short-scale temporal samples perform worse than the others, however Fireworks samples are usually about the same length as Shatter, therefore this reason seems unlikely. One hypothesis could be that low-frequency samples (Fart, Fireworks) perform worse than those with high frequency like Shatter.
+
+
+
         ----------- TODO USAMA : WRITE THINGS HERE -------------------
+        Some results about CNN ...
+
+
 
 
 \section{Conclusion}

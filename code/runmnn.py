@@ -105,17 +105,19 @@ def create_confmatrix():
 	labels = pd.read_csv(TEST_CONF_CSV).sort_values(by=["label"])["label"].drop_duplicates().tolist()
 	results = confusion_matrix(expected, predicted,labels)
 
+	labels = [s[:3].upper() for s in labels]
 	df_cm = pd.DataFrame(results, index = [i for i in labels],columns = [i for i in labels])
-	plt.figure(figsize = (10,7))
-	sn.heatmap(df_cm, annot=True)
+	plt.figure(figsize = (8,7))
+	sn.heatmap(df_cm, annot=True, cmap="Blues", cbar=False)
+	plt.tight_layout()
 	plt.savefig('../final/confusion_matrix.png', format='png')
 
 
 def main():
 	utils.write_log_msg("Run MNN code ...")
 	#limitedCsv()
-	run_mnn(0)
-	#create_confmatrix()
+	#run_mnn(0)
+	create_confmatrix()
 
 main()
 
