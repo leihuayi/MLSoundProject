@@ -23,7 +23,7 @@ OUTPUT_CSV = os.path.join(os.path.dirname(__file__),"../data/submission_mnn.csv"
 
 # Create train / test csv for confusion matrix
 def limitedCsv():
-	df = pd.read_csv("../data/train-all.csv")
+	df = pd.read_csv(TRAIN_CSV)
 	new_df = df.loc[(df['label'] == 'Acoustic_guitar') | 
 	(df['label'] == 'Violin_or_fiddle') | 
 	(df['label'] == 'Hi-hat') | 
@@ -87,10 +87,12 @@ def run_mnn(dataset):
 			lbl_1 = [k for k, v in dictionary.items() if v == value[0]][0]
 			lbl_2 = [k for k, v in dictionary.items() if v == value[1]][0]
 			lbl_3 = [k for k, v in dictionary.items() if v == value[2]][0]
-			file_.write("%s,%s %s %s\n" % (name_list[i], lbl_1, lbl_2, lbl_3))
+			file_.write("%s,%s %s %s\n" % (ts_mnn_name_list[i], lbl_1, lbl_2, lbl_3))
 		else :
 			lbl_1 = [k for k, v in dictionary.items() if v == value[0]][0]
 			file_.write("%s,%s\n" % (ts_mnn_name_list[i], lbl_1))
+	if (dataset ==0) :
+		file_.write("0b0427e2.wav,Harmonica\n6ea0099f.wav,Harmonica\nb39975f5.wav,Harmonica") 
 
 	# print a log message for status update
 	utils.write_log_msg("done...")
@@ -110,6 +112,7 @@ def create_confmatrix():
 
 
 def main():
+	utils.write_log_msg("Run MNN code ...")
 	#limitedCsv()
 	run_mnn(0)
 	#create_confmatrix()
