@@ -194,21 +194,6 @@ def parse_audio_files_train(audio_path, train_csv_path, label_dictionary, nn_typ
 #***********************************************************************************************#
 #                                                                                               #
 #   Module:                                                                                     #
-#   windows()                                                                                   #
-#                                                                                               #
-#   Description:                                                                                #
-#   Function to create a window on audio data.                                                  #
-#                                                                                               #
-#***********************************************************************************************#
-def windows(data, window_size):
-    start = 0
-    while start < len(data):
-        yield start, start + window_size
-        start += int(window_size / 2)
-
-#***********************************************************************************************#
-#                                                                                               #
-#   Module:                                                                                     #
 #   p_train_cnn_thread()                                                                        #
 #                                                                                               #
 #   Description:                                                                                #
