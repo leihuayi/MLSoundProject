@@ -193,28 +193,13 @@ def parse_audio_files_train(audio_path, train_csv_path, label_dictionary, nn_typ
 #***********************************************************************************************#
 #                                                                                               #
 #   Module:                                                                                     #
-#   windows()                                                                                   #
-#                                                                                               #
-#   Description:                                                                                #
-#   Function to create a window on audio data.                                                  #
-#                                                                                               #
-#***********************************************************************************************#
-def windows(data, window_size):
-    start = 0
-    while start < len(data):
-        yield start, start + window_size
-        start += int(window_size / 2)
-
-#***********************************************************************************************#
-#                                                                                               #
-#   Module:                                                                                     #
 #   p_train_cnn_thread()                                                                        #
 #                                                                                               #
 #   Description:                                                                                #
 #   Internal function to parse training audio files in multi-threaded environment for CNN.      #
 #                                                                                               #
 #***********************************************************************************************#
-def p_train_cnn_thread(audio_path, label_dictionary, data, bands = 60, frames = 41):
+def p_train_cnn_thread(audio_path, label_dictionary, data):
     # initialize variables
     labels = np.empty(0)
     X = np.empty(shape=(data.shape[0], N_MFCC, AUDIO_LENGTH, 1))
@@ -256,7 +241,7 @@ def p_train_cnn_thread(audio_path, label_dictionary, data, bands = 60, frames = 
 #   Internal function to parse prediction audio files in multi-threaded environment for CNN.    #
 #                                                                                               #
 #***********************************************************************************************#
-def p_predict_cnn_thread(audio_path, name_list, bands = 60, frames = 41):
+def p_predict_cnn_thread(audio_path, name_list):
     # initialize variables
     X = np.empty(shape=(len(name_list), N_MFCC, AUDIO_LENGTH, 1))
     # traverse through the name list and process this threads workload
