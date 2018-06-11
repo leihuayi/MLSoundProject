@@ -152,65 +152,54 @@ def tensor_multilayer_neural_network(tr_features, tr_labels, ts_features, n_clas
 #   Building a 1 dimentional convolutional network for training and prediction of audio tags.   #
 #                                                                                               #
 #***********************************************************************************************#
-def convolution_1D(tr_features, tr_labels, ts_features, n_classes, training_epochs):
+def keras_convolution_1D(tr_features, tr_labels, ts_features, n_classes, training_epochs):
+    config = Config(sampling_rate=44100, audio_duration=2, n_folds=10, learning_rate=0.001, use_mfcc=True, n_mfcc=40)
+    PREDICTION_FOLDER = "predictions_1d_conv"
+    if not os.path.exists(PREDICTION_FOLDER):
+        os.mkdir(PREDICTION_FOLDER)
+    if os.path.exists('logs/' + PREDICTION_FOLDER):
+        shutil.rmtree('logs/' + PREDICTION_FOLDER)
 
-    # CNN parameters
-    feature_size = 2460 #60x41
-    num_labels = 10
-    num_channels = 2
+    skf = StratifiedKFold(tr_labels, n_folds=config.n_folds)    
+    cost_history = np.empty(shape=[5,0],dtype=float)
+    
+    # one hot encode from training labels 
+    tr_labels = to_categorical(tr_labels)  
+    
+    # predictions array for each fold of training
+    pred_list = []
+    
+    for i, (train_split, val_split) in enumerate(skf):
+        K.clear_session()
+        X, y, X_val, y_val = tr_features[train_split], tr_labels[train_split], tr_features[val_split], tr_labels[val_split]
+        checkpoint = ModelCheckpoint('best_%d.h5'%i, monitor='val_loss', verbose=1, save_best_only=True)
+        early = EarlyStopping(monitor="val_loss", mode="min", patience=5)
+        tb = TensorBoard(log_dir='./logs/' + PREDICTION_FOLDER + '/fold_%i'%i, write_graph=True)
+        callbacks_list = [checkpoint, early, tb]
+        print("#"*50)
+        print("Fold: ", i)
+        model = get_1d_conv_model(config)
+        history = model.fit(X, y, validation_data=(X_val, y_val), callbacks=callbacks_list, batch_size=64, epochs=training_epochs)
+        model.load_weights('best_%d.h5'%i)
+        # Save test predictions
+        predictions = model.predict(ts_features, batch_size=64, verbose=1)
+        pred_list.append(predictions)
+        # append history
+        cost_history = np.hstack((cost_history,[range(len(history.history['acc'])),history.history['acc'],history.history['val_acc'],history.history['loss'],history.history['val_loss']]))
 
-    batch_size = 50
-    kernel_size = 30
-    depth = 20
-    num_hidden = 200
-
-    learning_rate = 0.01
-
-    # Create CNN model
-    X = tf.placeholder(tf.float32, shape=[None,feature_size,num_channels])
-    Y = tf.placeholder(tf.float32, shape=[None,num_labels])
-
-    cov = apply_convolution(kernel_size,num_channels,depth,1)
-
-    shape = cov.get_shape().as_list()
-    cov_flat = tf.reshape(cov, [-1, shape[1] * shape[2] * shape[3]])
-
-    f_weights = weight_variable([shape[1] * shape[2] * depth, num_hidden])
-    f_biases = bias_variable([num_hidden])
-    f = tf.nn.sigmoid(tf.add(tf.matmul(cov_flat, f_weights),f_biases))
-
-    out_weights = weight_variable([num_hidden, num_labels])
-    out_biases = bias_variable([num_labels])
-    y_ = tf.nn.softmax(tf.matmul(f, out_weights) + out_biases)
-
-    loss = -tf.reduce_sum(Y * tf.log(y_))
-    optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss)
-    correct_prediction = tf.equal(tf.argmax(y_,1), tf.argmax(Y,1))
-    accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-
-    # Train CNN
-    cost_history = np.empty(shape=[1],dtype=float)
-    with tf.Session() as session:
-        tf.initialize_all_variables().run()
-
-        for itr in range(training_epochs):    
-            offset = (itr * batch_size) % (tr_labels.shape[0] - batch_size)
-            batch_x = tr_features[offset:(offset + batch_size), :, :, :]
-            batch_y = tr_labels[offset:(offset + batch_size), :]
-            
-            _, c = session.run([optimizer, loss],feed_dict={X: batch_x, Y : batch_y})
-            cost_history = np.append(cost_history,c)
-
-        # predict results based on the trained model
-        y_pred = session.run(tf.argmax(y_,1),feed_dict={X: ts_features})
-        y_k_probs, y_k_pred = session.run(tf.nn.top_k(y_, k=n_classes), feed_dict={X: ts_features})
-        
+    # final processing to ensemble 2D prediction results    
+    prediction = np.ones_like(pred_list[0])
+    for pred in pred_list:
+        prediction = prediction*pred
+    prediction = prediction**(1./len(pred_list))
+    
     # plot cost history
     df = pd.DataFrame(cost_history)
     df.to_csv("../data/cost_history_cnn_1d.csv")
-
+    
     # return the predicted values back to the calling program
-    return y_pred, y_k_probs, y_k_pred
+    return prediction
+
 
 #***********************************************************************************************#
 #                                                                                               #
@@ -230,7 +219,7 @@ def keras_convolution_2D(tr_features, tr_labels, ts_features, n_classes, trainin
         shutil.rmtree('logs/' + PREDICTION_FOLDER)
 
     skf = StratifiedKFold(tr_labels, n_folds=config.n_folds)    
-    cost_history = np.empty(shape=[1],dtype=float)
+    cost_history = np.empty(shape=[5,0],dtype=float)
     
     # one hot encode from training labels 
     tr_labels = to_categorical(tr_labels)  
@@ -254,7 +243,7 @@ def keras_convolution_2D(tr_features, tr_labels, ts_features, n_classes, trainin
         predictions = model.predict(ts_features, batch_size=64, verbose=1)
         pred_list.append(predictions)
         # append history
-        cost_history = np.append(cost_history,[history.history['acc'],history.history['val_acc'],history.history['loss'],history.history['val_loss']])
+        cost_history = np.hstack((cost_history,[range(len(history.history['acc'])),history.history['acc'],history.history['val_acc'],history.history['loss'],history.history['val_loss']]))
 
     # final processing to ensemble 2D prediction results    
     prediction = np.ones_like(pred_list[0])
@@ -314,34 +303,50 @@ def get_2d_conv_model(config):
 
     model.compile(optimizer=opt, loss=losses.categorical_crossentropy, metrics=['acc'])
     return model
- 
-       
+
 #***********************************************************************************************#
 #                                                                                               #
 #   Module:                                                                                     #
 #   helper functions                                                                            #
 #                                                                                               #
 #   Description:                                                                                #
-#   Helper functions for building a 2D convolutional network.                                   #
+#   Helper functions for building a 1D convolutional network using keras library.               #
 #                                                                                               #
 #***********************************************************************************************#
-def weight_variable(shape):
-    initial = tf.truncated_normal(shape, stddev = 0.1)
-    return tf.Variable(initial)
+def get_1d_conv_model(config):
+    
+    nclass = config.n_classes
+    input_length = config.audio_length
+    
+    inp = Input(shape=(input_length,1))
+    x = Convolution1D(16, 9, activation=relu, padding="valid")(inp)
+    x = Convolution1D(16, 9, activation=relu, padding="valid")(x)
+    x = MaxPool1D(16)(x)
+    x = Dropout(rate=0.1)(x)
+    
+    x = Convolution1D(32, 3, activation=relu, padding="valid")(x)
+    x = Convolution1D(32, 3, activation=relu, padding="valid")(x)
+    x = MaxPool1D(4)(x)
+    x = Dropout(rate=0.1)(x)
+    
+    x = Convolution1D(32, 3, activation=relu, padding="valid")(x)
+    x = Convolution1D(32, 3, activation=relu, padding="valid")(x)
+    x = MaxPool1D(4)(x)
+    x = Dropout(rate=0.1)(x)
+    
+    x = Convolution1D(256, 3, activation=relu, padding="valid")(x)
+    x = Convolution1D(256, 3, activation=relu, padding="valid")(x)
+    x = GlobalMaxPool1D()(x)
+    x = Dropout(rate=0.2)(x)
 
-def bias_variable(shape):
-    initial = tf.constant(1.0, shape = shape)
-    return tf.Variable(initial)
+    x = Dense(64, activation=relu)(x)
+    x = Dense(1028, activation=relu)(x)
+    out = Dense(nclass, activation=softmax)(x)
 
-def apply_convolution(x,kernel_size,num_channels,depth, dimension):
-    weights = weight_variable([kernel_size, kernel_size, num_channels, depth])
-    biases = bias_variable([depth])
-    if(dimension == 1):
-        cov_function = tf.nn.conv1d(x,weights,strides=[1,2,2,1], padding='VALID')
-    else:
-        cov_function = tf.nn.conv2d(x,weights,strides=[1,2,2,1], padding='SAME')
-    return tf.nn.relu(tf.add(cov_function,biases))
+    model = models.Model(inputs=inp, outputs=out)
+    opt = optimizers.Adam(config.learning_rate)
 
-def apply_max_pool(x,kernel_size,stride_size):
-    return tf.nn.max_pool(x, ksize=[1, kernel_size, kernel_size, 1], strides=[1, stride_size, stride_size, 1], padding='SAME')
+    model.compile(optimizer=opt, loss=losses.categorical_crossentropy, metrics=['acc'])
+    return model
+ 
 

@@ -69,7 +69,7 @@ def read_audio_files():
     return dictionary, tr_mnn_features, tr_mnn_labels, ts_mnn_features, ts_mnn_name_list, tr_cnn_features, tr_cnn_labels, ts_cnn_features, ts_cnn_name_list
 
 # Run convolutional neural network only
-def run_cnn(_load = False):
+def run_cnn(dimension,_load = False):
     # intialize the log file for current run of the code
     utils.initialize_log()  
     # read audio files and parse them or simply load from pre-extracted feature files
@@ -77,17 +77,23 @@ def run_cnn(_load = False):
         dictionary, tr_mnn_features, tr_mnn_labels, ts_mnn_features, ts_mnn_name_list, tr_cnn_features, tr_cnn_labels, ts_cnn_features, ts_cnn_name_list  = read_audio_files()  
     else:
         dictionary, tr_mnn_features, tr_mnn_labels, ts_mnn_features, ts_mnn_name_list, tr_cnn_features, tr_cnn_labels, ts_cnn_features, ts_cnn_name_list  = features.read_features()
-    # call the 2d convolutional network code here
-    cnn_2d_probs = train.keras_convolution_2D(tr_cnn_features, tr_cnn_labels, ts_cnn_features, len(dictionary), training_epochs=50)
-    # get top three predictions
-    top3 = cnn_2d_probs.argsort()[:,-3:][:,::-1]
+
+    if dimension == 1:
+        # call the 2d convolutional network code here
+        cnn_1d_probs = train.keras_convolution_1D(tr_cnn_features, tr_cnn_labels, ts_cnn_features, len(dictionary), training_epochs=50)
+        # get top three predictions
+        top3 = cnn_1d_probs.argsort()[:,-3:][:,::-1]
+    else :
+        # call the 2d convolutional network code here
+        cnn_2d_probs = train.keras_convolution_2D(tr_cnn_features, tr_cnn_labels, ts_cnn_features, len(dictionary), training_epochs=50)
+        # get top three predictions
+        top3 = cnn_2d_probs.argsort()[:,-3:][:,::-1]
     # print the predicted results to a csv file.
     utils.print_csv_file(top3, ts_mnn_name_list, dictionary, OUTPUT_CSV)
     
 
 def main():
 	utils.write_log_msg("Run CNN code ...")
-	#limitedCsv()
-	run_cnn()
+	run_cnn(2)
 
 main()
