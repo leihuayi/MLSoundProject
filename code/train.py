@@ -38,11 +38,11 @@ def train(tr_mnn_features, tr_mnn_labels, ts_mnn_features, tr_cnn_features, tr_c
     # call the multi-layer neural network to get results
     mnn_y_pred, mnn_probs, mnn_pred = tensor_multilayer_neural_network(tr_mnn_features, tr_mnn_labels, ts_mnn_features, n_classes, training_epochs=5000)
     # call the 1d convolutional network code here
-    
+    cnn_1d_probs = [] #keras_convolution_1D(tr_cnn_features, tr_cnn_labels, ts_cnn_features, n_classes, training_epochs=50)  
     # call the 2d convolutional network code here
     cnn_2d_probs = keras_convolution_2D(tr_cnn_features, tr_cnn_labels, ts_cnn_features, n_classes, training_epochs=50)  
     # ensemble the results to get combined prediction
-    return ensemble_results(mnn_probs, mnn_pred, cnn_2d_probs)
+    return ensemble_results(mnn_probs, mnn_pred, cnn_1d_probs, cnn_2d_probs)
     
 #***********************************************************************************************#
 #                                                                                               #
@@ -53,18 +53,17 @@ def train(tr_mnn_features, tr_mnn_labels, ts_mnn_features, tr_cnn_features, tr_c
 #   Ensemble the results of all the models and return top 3 predictions.                        #
 #                                                                                               #
 #***********************************************************************************************#
-def ensemble_results(mnn_probs, mnn_pred, cnn_2d_probs):
+def ensemble_results(mnn_probs, mnn_pred, cnn_1d_probs=[], cnn_2d_probs=[]):
     # create a local ensemble output variable
     ensembled_output = np.zeros(shape=(mnn_probs.shape[0], mnn_probs.shape[1]))
     # add the mnn predictions to the ensemble output
     for row, columns in enumerate(mnn_pred):
         for i, column in enumerate(columns):
             ensembled_output[row, column] += mnn_probs[row, i]
+    # add the 1D cnn predictions to the ensemble output
+    #ensembled_output = ensembled_output + cnn_1d_probs
     # add the 2D cnn predictions to the ensemble output
     ensembled_output = ensembled_output + cnn_2d_probs
-    #for row, columns in enumerate(cnn_2d_pred):
-    #    for i, column in enumerate(columns):
-    #        ensembled_output[row, column] += cnn_2d_probs[row, i]
     # extract top three predictions
     top3 = ensembled_output.argsort()[:,-3:][:,::-1]
     # return the top 3 results
@@ -146,7 +145,7 @@ def tensor_multilayer_neural_network(tr_features, tr_labels, ts_features, n_clas
 #***********************************************************************************************#
 #                                                                                               #
 #   Module:                                                                                     #
-#   convolution_1D()                                                                            #
+#   keras_convolution_1D()                                                                      #
 #                                                                                               #
 #   Description:                                                                                #
 #   Building a 1 dimentional convolutional network for training and prediction of audio tags.   #

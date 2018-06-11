@@ -95,7 +95,7 @@ def print_csv_file(predicts, name_list, dictionary, output_path):
         lbl_3 = [k for k, v in dictionary.items() if v == value[2]][0]
         file_.write("%s,%s %s %s\n" % (name_list[i], lbl_1, lbl_2, lbl_3))
     # corrupt data append
-    file_.write("0b0427e2.wav,Harmonica\n6ea0099f.wav,Harmonica\nb39975f5.wav,Harmonica")     
+    file_.write("0b0427e2.wav,Finger_snapping Hi-hat Trumpet\n6ea0099f.wav,Finger_snapping Hi-hat Trumpet\nb39975f5.wav,Finger_snapping Hi-hat Trumpet")     
 
 #***********************************************************************************************#
 #                                                                                               #
