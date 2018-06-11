@@ -69,7 +69,7 @@ def read_audio_files():
     return dictionary, tr_mnn_features, tr_mnn_labels, ts_mnn_features, ts_mnn_name_list, tr_cnn_features, tr_cnn_labels, ts_cnn_features, ts_cnn_name_list
 
 # Run convolutional neural network only
-def run_cnn(_load = True):
+def run_cnn(_load = False):
     # intialize the log file for current run of the code
     utils.initialize_log()  
     # read audio files and parse them or simply load from pre-extracted feature files

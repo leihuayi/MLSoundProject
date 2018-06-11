@@ -15,7 +15,7 @@ from keras.activations import softmax
 from keras.layers import (Dense, Input, Convolution2D, BatchNormalization, Flatten, MaxPool2D, Activation)
 from keras.callbacks import (EarlyStopping, ModelCheckpoint, TensorBoard)
 from keras.utils import to_categorical
-from sklearn.cross_validation import StratifiedKFold
+from sklearn.model_selection import StratifiedKFold
 from keras import backend as K
 
 #-----------------------------------------------------------------------------------------------#

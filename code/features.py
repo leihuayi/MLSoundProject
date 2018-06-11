@@ -29,6 +29,7 @@ SAMPLE_RATE = 44100
 N_MFCC = 40
 AUDIO_DURATION = 2
 AUDIO_LENGTH = 1 + int(np.floor(AUDIO_DURATION*SAMPLE_RATE/512))
+INPUT_LENGTH = SAMPLE_RATE * AUDIO_DURATION
 
 #***********************************************************************************************#
 #                                                                                               #
@@ -226,17 +227,17 @@ def p_train_cnn_thread(audio_path, label_dictionary, data, bands = 60, frames = 
         fn = audio_path+line["fname"]            
         sound_clip, _ = librosa.core.load(fn, sr=SAMPLE_RATE, res_type='kaiser_fast')
         # Random offset / Padding
-        if len(sound_clip) > AUDIO_DURATION:
-            max_offset = len(sound_clip) - AUDIO_DURATION
+        if len(sound_clip) > INPUT_LENGTH:
+            max_offset = len(sound_clip) - INPUT_LENGTH
             offset = np.random.randint(max_offset)
-            sound_clip = sound_clip[offset:(AUDIO_DURATION+offset)]
+            sound_clip = sound_clip[offset:(INPUT_LENGTH+offset)]
         else:
-            if AUDIO_DURATION > len(sound_clip):
-                max_offset = AUDIO_DURATION - len(sound_clip)
+            if INPUT_LENGTH > len(sound_clip):
+                max_offset = INPUT_LENGTH - len(sound_clip)
                 offset = np.random.randint(max_offset)
             else:
                 offset = 0
-            sound_clip = np.pad(sound_clip, (offset, AUDIO_DURATION - len(sound_clip) - offset), "constant")  
+            sound_clip = np.pad(sound_clip, (offset, INPUT_LENGTH - len(sound_clip) - offset), "constant")  
         # extract mfcc features
         mfcc = librosa.feature.mfcc(sound_clip, sr = SAMPLE_RATE, n_mfcc=N_MFCC)
         mfcc = np.expand_dims(mfcc, axis=-1)
@@ -266,17 +267,17 @@ def p_predict_cnn_thread(audio_path, name_list, bands = 60, frames = 41):
         # read the sound file
         sound_clip,_ = librosa.load(audio_path+fname, sr=SAMPLE_RATE, res_type='kaiser_fast')
         # Random offset / Padding
-        if len(sound_clip) > AUDIO_DURATION:
-            max_offset = len(sound_clip) - AUDIO_DURATION
+        if len(sound_clip) > INPUT_LENGTH:
+            max_offset = len(sound_clip) - INPUT_LENGTH
             offset = np.random.randint(max_offset)
-            sound_clip = sound_clip[offset:(AUDIO_DURATION+offset)]
+            sound_clip = sound_clip[offset:(INPUT_LENGTH+offset)]
         else:
-            if AUDIO_DURATION > len(sound_clip):
-                max_offset = AUDIO_DURATION - len(sound_clip)
+            if INPUT_LENGTH > len(sound_clip):
+                max_offset = INPUT_LENGTH - len(sound_clip)
                 offset = np.random.randint(max_offset)
             else:
                 offset = 0
-            sound_clip = np.pad(sound_clip, (offset, AUDIO_DURATION - len(sound_clip) - offset), "constant")
+            sound_clip = np.pad(sound_clip, (offset, INPUT_LENGTH - len(sound_clip) - offset), "constant")  
         # extract mfcc features
         mfcc = librosa.feature.mfcc(sound_clip, sr = SAMPLE_RATE, n_mfcc=N_MFCC)
         mfcc = np.expand_dims(mfcc, axis=-1)
