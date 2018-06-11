@@ -17,6 +17,28 @@
 \usepackage{pgfplots}
 
 \linespread{1.15}
+
+\begin{filecontents}{sub_mnn.csv}
+submission,score
+1,0.166
+2,0.232
+3,0.305
+4,0.348
+5,0.481
+6,0.518
+7,0.528
+8,0.564
+\end{filecontents}
+
+
+\begin{filecontents}{sub_cnn.csv}
+submission,score
+9,0.532
+10,0.100
+11,0.106
+12,0.848
+\end{filecontents}
+
 %
 %==The poster style============================================================
 \usetheme{sharelatex}
@@ -63,7 +85,7 @@ Usama Zafar, Sarah Gross
 \section{Background}
 
 	Earlier works \cite{ref1} \cite{ref2} created algorithms based on Hidden Markov Models for this task, as this technique proved very efficient for speech recognition.\\
-	However many other authors \cite{ref3} \cite{ref4} disapproved this approach, as environmental sound isn't data following a structured, logical path like speech, making HMMs unreliable.\\
+	However many other authors \cite{ref3} \cite{ref4} disapproved this approach, as environmental sound is not structured data following a logical path like speech, making HMM unreliable.\\
 	Toyoda et. al. \cite{ref5} show that Neural Networks give similar results on general sound classification than HMM for less computation, and most recently research on Convolutional Neural Networks \cite{ref4} \cite{ref6} gave noise-independant, excellent results for this task (92,19\% accuracy for CNN vs 57.4\% accuracy for HMM \cite{ref4}).
 
 \section{Method}
@@ -117,8 +139,8 @@ Usama Zafar, Sarah Gross
 
 		These settings were obtained by try-and-fail run of code, and checking the cost graph.\\
 
-		After MNN, we implemented a 2D Convolutional Neural Network in order to compare and combine the techniques.\\
-		Regarding fixed size input, we divide each sound clip into segments of 60x41 (60 rows and 41 columns). The mel-spec and their deltas become two channels, which are fed into CNN \cite{ref6}.
+		After MNN, we implemented a 2D-CNN in order to compare and combine the techniques.\\
+		We divide each sound clip into 40x173 segments and use only MFCC feature as channel.
 
 		\vskip1ex
 		\begin{figure}
@@ -128,7 +150,7 @@ Usama Zafar, Sarah Gross
 		\end{figure}
 		\vskip2ex
 
-
+		We first tried to use Tensorflow, then switched to an easier implementation with Keras with 4 convolutional layers, "same" padding and ReLu activation functions.
 
 
 \section{Experiments and results}
@@ -147,21 +169,24 @@ Usama Zafar, Sarah Gross
 	\subsection{Results}
 		Left: our MAP@3 score progression curve. Right: The MNN cross-entropy loss graph.
 		\begin{center}
-		\begin{minipage}{.49\linewidth}
+		\begin{minipage}{.59\linewidth}
 		\begin{tikzpicture}
 		\tikzstyle{every node}=[font=\small]
 		\centering
-            \begin{axis}[width=0.90\columnwidth, height=250, ylabel=Score, xlabel=Submission, ytick={0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9}, xtick={0,1,2,3,4,5,6,7,8},xlabel style={yshift=-0.5cm}, ylabel style={yshift=1cm}]
-                \addplot[thick, teal] table [x=submission, y=score, col sep=comma ] {submissions.csv};
+            \begin{axis}[width=0.90\columnwidth, height=250, ylabel=Score, xlabel=Submission, ytick={0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9}, xtick={0,2,4,6,8,10,12},xlabel style={yshift=-0.5cm}, ylabel style={yshift=1cm}, legend pos=north west]
+                \addplot[thick, blue] table [x=submission, y=score, col sep=comma ] {sub_mnn.csv};
+                \addlegendentry{MNN}
+                \addplot[thick, red!70!yellow] table [x=submission, y=score, col sep=comma ] {sub_cnn.csv};
+                \addlegendentry{CNN}
             \end{axis}
         \end{tikzpicture}
         \end{minipage}
-		\begin{minipage}{.49\linewidth}
+		\begin{minipage}{.39\linewidth}
 		\begin{tikzpicture}
 		\tikzstyle{every node}=[font=\small]
 		\centering
-            \begin{axis}[width=0.90\columnwidth, height=250, ylabel=Cost, xlabel=Num of epochs,xtick={0,100,200,300,400,500}, ytick={0,1000,2000,3000,4000}, xlabel style={yshift=-0.5cm}, ylabel style={yshift=1.5cm}]
-                \addplot[thick, teal] table [x=epoch, y=cost, col sep=comma, ] {cost_history_mnn.csv};
+            \begin{axis}[width=0.90\columnwidth, height=250, ylabel=Cost, xlabel=Num of epochs,xtick={0,200,400,600}, ytick={0,1000,2000,3000,4000}, xlabel style={yshift=-0.5cm}, ylabel style={yshift=1.7cm}]
+                \addplot[thick, blue] table [x=epoch, y=cost, col sep=comma, ] {cost_history_mnn.csv};
             \end{axis}
         \end{tikzpicture}
         \end{minipage}
@@ -169,7 +194,7 @@ Usama Zafar, Sarah Gross
         \vskip2ex
 
 
-        We built the confusion matrix for the 10 most frequent labels. The model makes less mistakes on the musical instruments than on the other sounds.
+        We built the MNN confusion matrix for the 10 most frequent labels. The model makes less mistakes on the musical instruments than on the other sounds.
 		\begin{figure}
 		\centering
 		\includegraphics[width=0.90\columnwidth]{confusion_matrix.png}
@@ -178,7 +203,8 @@ Usama Zafar, Sarah Gross
 
 \section{Conclusion}
 
-	This work presents a classification method of environmental sounds based on neural networks. After incremental trials, we get an algoritmn running feature extraction in a few minutes and classification almost instantaneously. It classifies correctly 56,4\% of the data, which is a score similar to previous works on HMM \cite{ref1} and multilayer neural networks \cite{ref5}.
+	This work presents a classification method of environmental sounds based on neural networks. We get an algoritmn running feature extraction within an hour and classification almost instantaneously. It classifies correctly 56,4\% of the data with MNN and 84,8\% of the data using 2D-CNN, which is consistent with the results in the literature \cite{ref4} \cite{ref5} \cite{ref6}.
+	In order to further improve our model, we could combine their results and add a 1D-CNN.
 
 
 %==============================================================================

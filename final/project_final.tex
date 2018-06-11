@@ -10,6 +10,28 @@
 \usepackage{pgfplots}
 \usepackage{verbatim}
 
+\begin{filecontents}{sub_mnn.csv}
+submission,score
+1,0.166
+2,0.232
+3,0.305
+4,0.348
+5,0.481
+6,0.518
+7,0.528
+8,0.564
+\end{filecontents}
+
+
+\begin{filecontents}{sub_cnn.csv}
+submission,score
+9,0.532
+10,0.100
+11,0.106
+12,0.848
+\end{filecontents}
+
+
 \title{Final Paper : \\Freesound General-Purpose Audio Tagging Challenge}
 
 
@@ -155,11 +177,16 @@ Tsinghua University\\
 		\end{itemize}
 
 		After MNN, we implemented a 2D Convolutional Neural Network in order to compare and combine the techniques.\\
-		We used Piczak et al. 's settings \cite{Piczak} for windowing by dividing each sound clip into segments of 60x41 (60 rows and 41 columns) \ref{fig:cnngraph}. The mel-spec and their deltas become two channels, which are fed into CNN.\\
-		We preferred Python package \verb+Keras+ since CNN implementation with \verb+Tensorflow+, especially concerning windowing step, is cumbersome.
+		We tried used Piczak et al. 's settings \cite{Piczak} for windowing by dividing each sound clip into segments of 60x41 (60 rows and 41 columns), using mel-spectrogram and its delta as channels fed into CNN. We implemented this solution with Tensorflow, but didn't get satisfying result. \\
+		We switched to Python package \verb+Keras+ and only kept MFCC as channel. Since we have a size of 40 for MFCC, we get 40 as first windowing dimension. Then to get the second dimension, which is the audio length of each sample, we apply the following formula :
+		$$ s_{len} = 1 + \lfloor \frac{s_{dur} \times s_{rate}}{hop_{len}}\rfloor = 1 +  \lfloor \frac{2 \times 44100}{512}\rfloor = 173$$
+
+		Where $s_{len}$ is the sample audio length, $s_{dur}$ is an arbitrary sample duration (we choose 2 seconds), $s_{rate}$ is the sample rate of 44.1 MHz, finally $hop_{len}$ is the hop lenght, meaning the number of samples between successive frames (default 521 in \verb+LibROSA+).\\
+
+		Therefore we implement 40x173 segmentation of the clips \ref{fig:cnngraph} and feed them into the CNN.
 
 		\vskip1ex
-		\begin{figure}
+		\begin{figure}[H]
 		\centering
 		\includegraphics[width=0.9\columnwidth]{cnn_chart.png}
 		\caption{Schema of implemented CNN}
@@ -176,9 +203,6 @@ Tsinghua University\\
 			\item We perform steps 2, 3, 4 three other times
 			\item The output is shaped back using \verb+Dense+ function. 
 		\end{enumerate}
-
-		----------- TODO USAMA : WRITE THINGS HERE -------------------
-		More details about CNN ...
 
 \section{Experiments and results}
 	\subsection{Dataset}
@@ -205,13 +229,20 @@ Tsinghua University\\
 	\subsection{Results}
 
 		This graph shows the score output by Kaggle using the metric previously evoked.\\
-		Perfecting the settings of the multilayer neural network makes our score constantly improve over the submissions.
+		Concerning the multilayer neural network, our score constantly improve over the submissions due to our change of the MNN settings.\\
+		Concerning the convolutional neural network, ...
+
+		----------- TODO USAMA : explain why first very bad results, then good -------------------
+
 		\vskip1ex
 		\begin{center}
 		\begin{tikzpicture}
 		\centering
-            \begin{axis}[width=0.90\columnwidth, height=200, ylabel=Score, xlabel=Submission]
-                \addplot[thick, teal] table [x=submission, y=score, col sep=comma ] {submissions.csv};
+            \begin{axis}[width=0.90\columnwidth, height=200, ylabel=Score, xlabel=Submission, legend pos=north west]
+                \addplot[thick, teal] table [x=submission, y=score, col sep=comma ] {sub_mnn.csv};
+                \addlegendentry{MNN}
+                \addplot[thick, red!70!yellow] table [x=submission, y=score, col sep=comma ] {sub_cnn.csv};
+                \addlegendentry{CNN}
             \end{axis}
         \end{tikzpicture}
         \end{center}
@@ -230,8 +261,10 @@ Tsinghua University\\
         \end{center}
         \vskip2ex
 
-        In order to understand better the performance of our classification algorithm, the confusion matrix \ref{fig:confusion_matrix} is built for the 10 most frequent labels : Acoustic\_guitar, Clarinet, Double\_bass, Fart, Fireworks, Hi-hat, Laughter, Saxophone, Shatter, Violin\_or\_fiddle.\\
-		\begin{figure}
+        ----------- TODO USAMA : plot CNN cost history graph ? -------------------
+
+        In order to understand better the performance of our classification algorithm, the MNN confusion matrix \ref{fig:confusion_matrix} is built for the 10 most frequent labels : Acoustic\_guitar, Clarinet, Double\_bass, Fart, Fireworks, Hi-hat, Laughter, Saxophone, Shatter, Violin\_or\_fiddle.\\
+		\begin{figure}[H]
 		\centering
 		\includegraphics[width=0.99\columnwidth]{confusion_matrix_full.png}
 		\caption{Confusion Matrix (x axis : prediction, y axis : true label)}
@@ -242,18 +275,16 @@ Tsinghua University\\
 		We notice that, like in Cowling et al.'s case \cite{Cowling}, the model makes less mistakes on the musical instruments than on the other sounds (Fart, Fireworks, Shatter) which are sometimes confused together. Shatter and Hi-Hat are also often mixed up, which is quite logical due to the similarity of there two sounds.\\
         Still, even though they are all non-musical sounds, Shatter has much better statistics than Fart of Fireworks. Piczak et. al. \cite{Piczak} notice that short-scale temporal samples perform worse than the others, however Fireworks samples are usually about the same length as Shatter, therefore this reason seems unlikely. One hypothesis could be that low-frequency samples (Fart, Fireworks) perform worse than those with high frequency like Shatter.
 
-
-
-        ----------- TODO USAMA : WRITE THINGS HERE -------------------
-        Some results about CNN ...
-
+        ----------- TODO USAMA : if time, build confusion matrix for lastest model -------------------
 
 
 
 \section{Conclusion}
 
-	This work presents a classification method of environmental sounds based on neural networks. A multi-threaded feature extraction process has been developped to get valuable spectral information within an hour. After incremental trials, we build a robust yet simple multilayer neural network running almost instantaneously producing very low cost. Using MAP@3 metric with 3 most likely labels, it classifies correctly 56,4\% of the data, which is a score similar to previous works on HMM \cite{Dufaux} and multilayer neural networks \cite{Toyoda}.\\
-	Yet, a better implementation of CNN would have probably improved significantly our results, and might have helped us reach the impressive scores of Zhang et. al. \cite{Zhang}.
+	This work presents a classification method of environmental sounds based on neural networks. A multi-threaded feature extraction process has been developped to get valuable spectral information within an hour. After incremental trials, we build a robust yet simple multilayer neural network running almost instantaneously producing very low cost. Using MAP@3 metric with 3 most likely labels, we obtain results very close to the related literature. First with MNN only, it classifies correctly 56,4\% of the data, similarly to previous works on HMM \cite{Dufaux} and multilayer neural networks \cite{Toyoda}. Secondly with 2D-CNN, 84,8\% of the data is correctly classified, which represents an average of Zhang et. al.'s \cite{Zhang} and Piczak et. al's \cite{Piczak} results. \\
+	Yet, there are still some perspective of improvements. A 2D-CNN is not necessary since the MFCC data is in one dimension, thus an implementation of 1D-CNN is possible as well. The combinaison of the results from the 3 models could give more nuanced and accurate results.
+
+	----------- TODO USAMA : update conclusion  -------------------
 
 \subsubsection*{Acknowledgments}
 	We are grateful to Tsinghua University's Department of Computer Science for providing us the ressources necessary for this project,

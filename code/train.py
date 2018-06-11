@@ -254,7 +254,7 @@ def keras_convolution_2D(tr_features, tr_labels, ts_features, n_classes, trainin
         predictions = model.predict(ts_features, batch_size=64, verbose=1)
         pred_list.append(predictions)
         # append history
-        cost_history = np.append(cost_history,history)
+        cost_history = np.append(cost_history,[history.history['acc'],history.history['val_acc'],history.history['loss'],history.history['val_loss']])
 
     # final processing to ensemble 2D prediction results    
     prediction = np.ones_like(pred_list[0])

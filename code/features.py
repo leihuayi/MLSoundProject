@@ -25,10 +25,11 @@ LABEL_DICT_NPY = os.path.join(os.path.dirname(__file__),"../data/f5.txt")
 CHUNK_SIZE = 500
 FEATURE_SIZE = 193
 
-SAMPLE_RATE = 44100
-N_MFCC = 40
-AUDIO_DURATION = 2
-AUDIO_LENGTH = 1 + int(np.floor(AUDIO_DURATION*SAMPLE_RATE/512))
+SAMPLE_RATE = 44100 # number of samples per second
+N_MFCC = 40 # size of mfcc array returned by librosa
+HOP_LENGTH = 512 # number of samples between successive frames
+AUDIO_DURATION = 2 # 2 seconds
+AUDIO_LENGTH = 1 + int(np.floor(AUDIO_DURATION*SAMPLE_RATE/HOP_LENGTH))
 INPUT_LENGTH = SAMPLE_RATE * AUDIO_DURATION
 
 #***********************************************************************************************#
@@ -214,7 +215,7 @@ def windows(data, window_size):
 #   Internal function to parse training audio files in multi-threaded environment for CNN.      #
 #                                                                                               #
 #***********************************************************************************************#
-def p_train_cnn_thread(audio_path, label_dictionary, data, bands = 60, frames = 41):
+def p_train_cnn_thread(audio_path, label_dictionary, data):
     # initialize variables
     labels = np.empty(0)
     X = np.empty(shape=(data.shape[0], N_MFCC, AUDIO_LENGTH, 1))
@@ -256,7 +257,7 @@ def p_train_cnn_thread(audio_path, label_dictionary, data, bands = 60, frames = 
 #   Internal function to parse prediction audio files in multi-threaded environment for CNN.    #
 #                                                                                               #
 #***********************************************************************************************#
-def p_predict_cnn_thread(audio_path, name_list, bands = 60, frames = 41):
+def p_predict_cnn_thread(audio_path, name_list):
     # initialize variables
     X = np.empty(shape=(len(name_list), N_MFCC, AUDIO_LENGTH, 1))
     # traverse through the name list and process this threads workload
