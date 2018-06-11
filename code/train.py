@@ -195,6 +195,7 @@ def keras_convolution_1D(tr_features, tr_labels, ts_features, n_classes, trainin
     
     # plot cost history
     df = pd.DataFrame(cost_history)
+    df = df.T
     df.to_csv("../data/cost_history_cnn_1d.csv")
     
     # return the predicted values back to the calling program
@@ -253,6 +254,7 @@ def keras_convolution_2D(tr_features, tr_labels, ts_features, n_classes, trainin
     
     # plot cost history
     df = pd.DataFrame(cost_history)
+    df = df.T
     df.to_csv("../data/cost_history_cnn_2d.csv")
     
     # return the predicted values back to the calling program
