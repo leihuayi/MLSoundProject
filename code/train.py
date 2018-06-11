@@ -12,7 +12,7 @@ from utils import Config
 import tensorflow as tf
 from keras import losses, models, optimizers
 from keras.activations import softmax
-from keras.layers import (Dense, Input, Convolution2D, BatchNormalization, Flatten, MaxPool2D, Activation)
+from keras.layers import (Dense, Input, Convolution1D, Convolution2D, BatchNormalization, Flatten, MaxPool2D, Activation)
 from keras.callbacks import (EarlyStopping, ModelCheckpoint, TensorBoard)
 from keras.utils import to_categorical
 from sklearn.cross_validation import StratifiedKFold
@@ -321,23 +321,23 @@ def get_1d_conv_model(config):
     input_length = config.audio_length
     
     inp = Input(shape=(input_length,1))
-    x = Convolution1D(16, 9, activation=relu, padding="valid")(inp)
-    x = Convolution1D(16, 9, activation=relu, padding="valid")(x)
+    x = Convolution1D(16, 9, activation="relu", padding="valid")(inp)
+    x = Convolution1D(16, 9, activation="relu", padding="valid")(x)
     x = MaxPool1D(16)(x)
     x = Dropout(rate=0.1)(x)
     
-    x = Convolution1D(32, 3, activation=relu, padding="valid")(x)
-    x = Convolution1D(32, 3, activation=relu, padding="valid")(x)
+    x = Convolution1D(32, 3, activation="relu", padding="valid")(x)
+    x = Convolution1D(32, 3, activation="relu", padding="valid")(x)
     x = MaxPool1D(4)(x)
     x = Dropout(rate=0.1)(x)
     
-    x = Convolution1D(32, 3, activation=relu, padding="valid")(x)
-    x = Convolution1D(32, 3, activation=relu, padding="valid")(x)
+    x = Convolution1D(32, 3, activation="relu", padding="valid")(x)
+    x = Convolution1D(32, 3, activation="relu", padding="valid")(x)
     x = MaxPool1D(4)(x)
     x = Dropout(rate=0.1)(x)
     
-    x = Convolution1D(256, 3, activation=relu, padding="valid")(x)
-    x = Convolution1D(256, 3, activation=relu, padding="valid")(x)
+    x = Convolution1D(256, 3, activation="relu", padding="valid")(x)
+    x = Convolution1D(256, 3, activation="relu", padding="valid")(x)
     x = GlobalMaxPool1D()(x)
     x = Dropout(rate=0.2)(x)
 
