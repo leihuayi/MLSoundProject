@@ -89,7 +89,7 @@ def run_cnn(dimension,_load = False):
         # get top three predictions
         top3 = cnn_2d_probs.argsort()[:,-3:][:,::-1]
     # print the predicted results to a csv file.
-    utils.print_csv_file(top3, ts_mnn_name_list, dictionary, OUTPUT_CSV)
+    utils.print_csv_file(top3, ts_cnn_name_list, dictionary, OUTPUT_CSV)
     
 
 def main():

@@ -12,7 +12,7 @@ from utils import Config
 import tensorflow as tf
 from keras import losses, models, optimizers
 from keras.activations import softmax
-from keras.layers import (Dense, Input, Convolution1D, Convolution2D, BatchNormalization, Flatten, MaxPool2D, Activation)
+from keras.layers import (Dense, Dropout, Input, Convolution1D, Convolution2D, BatchNormalization, Flatten, GlobalMaxPool1D, MaxPool1D, MaxPool2D, Activation)
 from keras.callbacks import (EarlyStopping, ModelCheckpoint, TensorBoard)
 from keras.utils import to_categorical
 from sklearn.cross_validation import StratifiedKFold
@@ -341,8 +341,8 @@ def get_1d_conv_model(config):
     x = GlobalMaxPool1D()(x)
     x = Dropout(rate=0.2)(x)
 
-    x = Dense(64, activation=relu)(x)
-    x = Dense(1028, activation=relu)(x)
+    x = Dense(64, activation="relu")(x)
+    x = Dense(1028, activation="relu")(x)
     out = Dense(nclass, activation=softmax)(x)
 
     model = models.Model(inputs=inp, outputs=out)
